@@ -119,13 +119,25 @@ def load_data():
 
     # merging the predictions on the timestamp
     solar_predictions_df = models.XGBRegressor_solar()
-    data.merge(solar_predictions_df, on='timestamp')
+    data = data.merge(solar_predictions_df, on='timestamp')
+
+
+    # the code below uses actual values for consumption and wind_production as placeholders until corresponding forecasts are ready
+    placeholder_data = pd.read_csv('raw_data/test.csv')
+    placeholder_data.rename(columns={'time': 'timestamp'}, inplace=True)
+    placeholder_data = placeholder_data[['timestamp', 'wind_production', 'consumption']]
+    placeholder_data.rename(columns={'consumption': 'forecasted_consumption'}, inplace=True)
+    # merging with the data df
+    data = data.merge(placeholder_data, on='timestamp')
+
+    # creating forecasted_production column
+    data['forecasted_production'] = data['wind_production'] + data['pv_forecast']
+    data = data[['timestamp', 'actual_consumption', 'forecasted_consumption', 'actual_production', 'forecasted_production', 'electricity_price']]
 
     return data
 
-
 # Predicting cost savings if consumption can be shifted
-def cost_savings(start_date, end_date, flexibility_degree):
+def cost_savings(flexibility_degree):
     '''
     Calculates cost savings by optimizing energy consumption patterns to align better with renewable energy production, based on a user-defined flexibility degree.
 
@@ -202,7 +214,7 @@ def cost_savings(start_date, end_date, flexibility_degree):
     - Results depend on the accuracy of forecasted data and the flexibility degree specified.
     '''
     # Load data
-    data = load_data(start_date, end_date)
+    data = load_data()
 
     # Ensure 'timestamp' is datetime and create 'date' column
     data['timestamp'] = pd.to_datetime(data['timestamp'])
@@ -333,3 +345,6 @@ def cost_savings(start_date, end_date, flexibility_degree):
     })
 
     return result
+
+my_cost_savings = cost_savings(0.9)
+print(my_cost_savings)
