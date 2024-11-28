@@ -10,8 +10,9 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import FunctionTransformer
 
-## lists of features:
-
+## preproc for our train and test datasets from the hackathon
+## import this file and call only the function transform_data(data)
+## this function includes the rest of the functions
 
 # f_time = ['time']
 
@@ -125,41 +126,7 @@ def transform_data(data):
 
     data_transformed = preproc.fit_transform(data)
     data_transformed = pd.DataFrame(data_transformed, columns=preproc.get_feature_names_out())
+    data_transformed['onehotencoder__precip_type:idx_2.0'] = 0 # test data didn't have this type, so adding it here so we have an equal num of columns between train and test
 
     print('➡️ preprocessing done')
     return data_transformed
-
-
-
-# ## building the pipeline
-
-# data = pd.read_csv("raw_data/train.csv")
-
-# # calling our custom functions on our dataframe
-# data_ft = degree_transformed(time_transformed(log_transformed(data)))
-
-# all_col = list(data_ft.columns)
-
-# # defining the columns we don't want in our X_train
-# drop_col = ['pv_production',
-#             'wind_production',
-#             'consumption',
-#             'spot_market_price',
-#             'precip_type:idx']
-
-# # defining the columns we want to scale
-# scale_col = [col for col in all_col if col not in drop_col and f_ohe]
-
-# # defining our scalers
-# minmax = MinMaxScaler()
-# ohe = OneHotEncoder(handle_unknown='ignore', sparse_output = False)
-
-# # our preproc pipline
-# preproc = make_column_transformer(
-#     (ohe, f_ohe),
-#     (minmax, scale_col),
-#     remainder = "drop"
-# )
-
-# data_transformed = preproc.fit_transform(data_ft)
-# data_transformed = pd.DataFrame(data_transformed, columns=preproc.get_feature_names_out())

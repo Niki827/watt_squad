@@ -11,7 +11,7 @@ httpx           # HTTP client
 pytest-asyncio  # asynchronous I/O support for pytest
 
 
-maybe add to Makefile: (when youre running local, run "uvicorn fast:app --reload" in CLI!)
+maybe add to Makefile: (when youre running local, run "uvicorn wattsquad.api.fast:app --reload" in CLI!)
 run_api:
 	uvicorn taxifare.api.fast:app --reload
 
@@ -19,8 +19,6 @@ run_api:
 
 
 """
-import pandas as pd
-
 
 # $WIPE_BEGIN
 
@@ -30,6 +28,13 @@ import pandas as pd
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import pandas as pd
+from pydantic import BaseModel
+import requests
+
+
+class DataFrameRequest(BaseModel):
+    data: list[dict]
 # from wattsquad import preproc
 
 app = FastAPI()
@@ -55,6 +60,8 @@ def root():
     # $CHA_END
 
 
+## TESTING API WITH DUMMY CALCULATE ENDPOINT
+
 # @app.get("/calculate")
 # def mock_calc(first, second):
 #     # $CHA_BEGIN
@@ -65,25 +72,12 @@ def root():
 
 ## PREDICT ENDPOINT
 
+@app.post("/predict")
+def predict(request: DataFrameRequest):
+    print(request)
+    data = pd.DataFrame(request.data)
+    print(data)
+    return {"message": "DataFrame received successfully",
+            "df": data.to_dict(orient='records')}
+
 # app.state.model = load_model()
-
-
-# @app.get("/predict")
-# def predict(
-#     # eg filepath??
-# )
-
-#fastapi
-@app.post("/receivedf")
-def receive_df(df):
-    print(df)
-    # df = pd.read_json(df)
-    # do something to df
-    #prepro
-    #model.predict
-    #predicted df
-    return 'hi'
-
-# @app.get("/data")
-# def read_data(df):
-#     return df.to_dict(orient='records')
