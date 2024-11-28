@@ -1,7 +1,9 @@
 '''
 This file contains all the important calculations necessary to produce the API and website output.
 '''
+# Importing packages
 import pandas as pd
+import models
 
 
 # Actual production and consumption
@@ -99,7 +101,27 @@ def load_data(start_date, end_date):
 	•	'forecasted_production': Predicted production.
 	•	'electricity_price': Electricity price at each time period.
     '''
-    pass
+
+    # Importing data for testing period
+    data = pd.read_csv("raw_data/test.csv")
+
+    # Renaming columns
+    data.rename(columns={'time': 'timestamp'}, inplace=True)
+    data.rename(columns={'consumption': 'actual_consumption'}, inplace=True)
+    data.rename(columns={'spot_market_price': 'electricity_price'}, inplace=True)
+
+    # Calculating total actual_production
+    data['actual_production'] = data['pv_production'] + data['wind_production']
+
+    # Dropping irrelevant columns
+    data = data[['timestamp', 'actual_consumption', 'actual_production', 'electricity_price']]
+
+    # merging the predictions on the timestamp
+    solar_predictions_df = models.XGBRegressor_solar()
+    data.merge(solar_predictions_df, on='timestamp')
+
+    return data
+
 
 # Predicting cost savings if consumption can be shifted
 def cost_savings(start_date, end_date, flexibility_degree):

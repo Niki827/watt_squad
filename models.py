@@ -5,7 +5,8 @@ This file contains all of the relevant prediction models.
 # importing relevant packages
 import pandas as pd
 import numpy as np
-#import
+from sklearn.model_selection import train_test_split
+from xgboost import XGBRegressor
 
 # Importing pre processed data
 
@@ -22,3 +23,43 @@ def XGBRegressor_solar():
     # Importing y_test
     y_test = pd.read_csv("raw_data/test.csv")
     y_test = y_test['pv_production']
+
+    #Creating X_val and y_val
+    X_train_transformed, X_val, y_train, y_val = train_test_split(
+    X_train_transformed, y_train, test_size = 0.1, random_state = 42  # val = 10%
+    )
+
+    # Initialize the model with the best parameters from grid search
+    xgb_reg = XGBRegressor(
+        max_depth=7,                # Optimal value found
+        n_estimators=300,           # Optimal value found
+        learning_rate=0.05,         # Optimal value found
+        reg_alpha=0.05,             # Optimal value found
+        reg_lambda=20,              # Optimal value found
+        subsample=0.8,              # Optimal value found
+        colsample_bytree=0.8,       # Optimal value found
+        objective='reg:squarederror',
+        eval_metric="mae",
+        random_state=42             # Ensuring reproducibility
+    )
+
+    # Fit the model on the training data
+    xgb_reg.fit(
+        X_train_transformed,
+        y_train,
+        eval_set=[(X_train_transformed, y_train), (X_val, y_val)],
+        early_stopping_rounds=5     # Retain early stopping
+    )
+
+    # Make predictions
+    y_pred = xgb_reg.predict(X_test_transformed)
+
+    # format predictions in a suitable dataframe
+    predictions_df = pd.read_csv("raw_data/test.csv")
+    predictions_df = predictions_df[['time']]
+    predictions_df['pv_forecast'] = y_pred
+
+    # renaming the column 'time' to 'timestamp' in order to integrate it into calculations.load_data()
+    predictions_df.rename(columns={'time': 'timestamp'}, inplace=True)
+
+    return predictions_df
