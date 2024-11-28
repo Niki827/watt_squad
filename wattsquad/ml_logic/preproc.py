@@ -10,9 +10,18 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import FunctionTransformer
 
-## lists of features:
+## preproc for our train and test datasets from the hackathon
+## import this file and call only the function transform_data(data)
+## this function includes the rest of the functions
 
-f_logs = [
+# f_time = ['time']
+
+
+## our custom functions:
+
+def log_transformed(data):
+    """ replaces values in columns in a dataframe with the log values """
+    f_logs = [
     'precip_1h:mm',
     'prob_precip_1h:p',
     'clear_sky_rad:W',
@@ -28,15 +37,6 @@ f_logs = [
     'wind_speed_50m:ms',
     'wind_speed_100m:ms'
 ]
-f_time = ['time']
-f_degree = ['sun_azimuth:d', 'wind_dir_2m:d', 'wind_dir_10m:d', 'wind_dir_50m:d', 'wind_dir_100m:d']
-f_ohe = ['precip_type:idx']
-
-
-## our custom functions:
-
-def log_transformed(data):
-    """ replaces values in columns in a dataframe with the log values """
     for col in f_logs:
         data[col] = np.log(data[col] + 1e-5)
     return data
@@ -83,6 +83,8 @@ def degree_transformed(data):
     """ takes a df 'data' and takes the features with degree units (in the specific list f_degree);
     creates a sin and cos column for each to make them cyclical. drops the original columns"""
 
+    f_degree = ['sun_azimuth:d', 'wind_dir_2m:d', 'wind_dir_10m:d', 'wind_dir_50m:d', 'wind_dir_100m:d']
+
     for col in f_degree:
         sin_column = np.sin(2 * np.pi * data[col]/360)
         cos_column = np.cos(2 * np.pi * data[col]/360)
@@ -106,11 +108,14 @@ def transform_data(data):
             'spot_market_price',
             'precip_type:idx']
 
+    f_ohe = ['precip_type:idx']
+
     scale_col = [col for col in all_col if col not in drop_col and f_ohe]
 
     # defining our scalers
     minmax = MinMaxScaler()
     ohe = OneHotEncoder(handle_unknown='ignore', sparse_output = False)
+
 
     # our preproc pipline
     preproc = make_column_transformer(
@@ -121,40 +126,7 @@ def transform_data(data):
 
     data_transformed = preproc.fit_transform(data)
     data_transformed = pd.DataFrame(data_transformed, columns=preproc.get_feature_names_out())
+    data_transformed['onehotencoder__precip_type:idx_2.0'] = 0 # test data didn't have this type, so adding it here so we have an equal num of columns between train and test
 
+    print('➡️ preprocessing done')
     return data_transformed
-
-
-
-# ## building the pipeline
-
-# data = pd.read_csv("raw_data/train.csv")
-
-# # calling our custom functions on our dataframe
-# data_ft = degree_transformed(time_transformed(log_transformed(data)))
-
-# all_col = list(data_ft.columns)
-
-# # defining the columns we don't want in our X_train
-# drop_col = ['pv_production',
-#             'wind_production',
-#             'consumption',
-#             'spot_market_price',
-#             'precip_type:idx']
-
-# # defining the columns we want to scale
-# scale_col = [col for col in all_col if col not in drop_col and f_ohe]
-
-# # defining our scalers
-# minmax = MinMaxScaler()
-# ohe = OneHotEncoder(handle_unknown='ignore', sparse_output = False)
-
-# # our preproc pipline
-# preproc = make_column_transformer(
-#     (ohe, f_ohe),
-#     (minmax, scale_col),
-#     remainder = "drop"
-# )
-
-# data_transformed = preproc.fit_transform(data_ft)
-# data_transformed = pd.DataFrame(data_transformed, columns=preproc.get_feature_names_out())
