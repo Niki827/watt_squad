@@ -38,3 +38,6 @@ uvicorn
 # tests
 httpx
 pytest-asyncio
+
+# ours
+xgboost==1.6.2
