@@ -346,5 +346,9 @@ def cost_savings(flexibility_degree):
 
     return result
 
+    # note that we can also return the columns data['cost_without_shifting'] and data['cost_with_shifting'] to return dataframes that provide cost savings on a daily/hourly basis
+    # might be nice to visualize instead of stating just a single result
+    # will leave the single result for now however, better to validate the API.
+
 my_cost_savings = cost_savings(0.9)
 print(my_cost_savings)
