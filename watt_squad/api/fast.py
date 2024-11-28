@@ -30,7 +30,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 
-
 app = FastAPI()
 
 # Allowing all middleware is optional, but good practice for dev purposes
@@ -47,7 +46,7 @@ app.add_middleware(
 @app.get("/")
 def root():
     # $CHA_BEGIN
-    return dict(greeting="api works, you're a genius, go grab a non-alcoholic beverages")
+    return dict(greeting="api works, you're a genius, go grab a drink")
     # $CHA_END
 
 
@@ -55,9 +54,16 @@ def root():
 
 # app.state.model = load_model()
 
-import api_preproc
+# import api_preproc
 
-@app.get("/predict")
-def predict(
-    # eg filepath??
-)
+# @app.get("/predict")
+# def predict(
+#     # eg filepath??
+# )
+
+@app.get("/calculate")
+def mock_calc(first, second):
+    # $CHA_BEGIN
+    calculation = int(first) * int(second)
+    return dict(result=calculation)
+    # $CHA_END
