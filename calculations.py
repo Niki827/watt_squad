@@ -72,18 +72,26 @@ def load_data():
     # Dropping irrelevant columns
     data = data[['timestamp', 'actual_consumption', 'actual_production', 'electricity_price']]
 
+
     # merging the predictions on the timestamp
     solar_predictions_df = models.XGBRegressor_solar()
     data = data.merge(solar_predictions_df, on='timestamp')
 
 
     # the code below uses actual values for consumption and wind_production as placeholders until corresponding forecasts are ready
-    placeholder_data = pd.read_csv('raw_data/test.csv')
-    placeholder_data.rename(columns={'time': 'timestamp'}, inplace=True)
-    placeholder_data = placeholder_data[['timestamp', 'wind_production', 'consumption']]
-    placeholder_data.rename(columns={'consumption': 'forecasted_consumption'}, inplace=True)
+
+    # receive data from model (dataframe with 12 values for consumption)
+    forecasted_consumption = models.predict_rnn_solar()
+
+    # merge with main dataframe
+    data['forecasted_consumption'] = forecasted_consumption
+
+    # placeholder_data = pd.read_csv('raw_data/test.csv')
+    # placeholder_data.rename(columns={'time': 'timestamp'}, inplace=True)
+    # placeholder_data = placeholder_data[['timestamp', 'wind_production', 'consumption']]
+    # placeholder_data.rename(columns={'consumption': 'forecasted_consumption'}, inplace=True)
     # merging with the data df
-    data = data.merge(placeholder_data, on='timestamp')
+    #data = data.merge(placeholder_data, on='timestamp')
 
     # creating forecasted_production column
     data['forecasted_production'] = data['wind_production'] + data['pv_forecast']
