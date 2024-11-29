@@ -8,13 +8,15 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from xgboost import XGBRegressor
 import preproc
-from tensorflow.keras import models
-from tensorflow.keras import layers
-from tensorflow.keras import optimizers, metrics
-from tensorflow.keras.regularizers import L1L2
-from tensorflow.keras.callbacks import EarlyStopping
+from keras import models
+from keras import layers
+from keras import optimizers, metrics
+from keras import regularizers
+from keras.callbacks import EarlyStopping
 import tensorflow as tf
 from typing import Tuple
+from keras.models import load_model
+
 
 
 
@@ -195,7 +197,12 @@ def init_model(X_train, y_train):
     return model
 
 
-def fit_model(model: tf.keras.Model, verbose=1) -> Tuple[tf.keras.Model, dict]:
+def fit_model(model: tf.keras.Model,
+              X_train,
+              y_train,
+              X_val,
+              y_val,
+              verbose=1) -> Tuple[tf.keras.Model, dict]:
 
     es = EarlyStopping(monitor = "val_loss",
                       patience = 15,
@@ -207,7 +214,7 @@ def fit_model(model: tf.keras.Model, verbose=1) -> Tuple[tf.keras.Model, dict]:
                         validation_data=(X_val, y_val),
                         shuffle = False,
                         batch_size = 32,
-                        epochs = 500,
+                        epochs = 1,
                         callbacks = [es],
                         verbose = verbose)
 
@@ -295,8 +302,41 @@ def RNN_solar():
 
 
     model = init_model(X_train, y_train)
-    model.summary()
+    #model.summary()
 
     # 2 - Training
     # ====================================
-    model, history = fit_model(model)
+    model, history = fit_model(model, X_train, y_train, X_val, y_val)
+
+    model.saved_model('rnn_solar')
+
+    return model, history
+
+
+
+def predict_rnn_solar():
+    model = load_model('rnn_solar')
+    test_data = pd.read_csv('raw_data/test.csv')
+    X_test = test_data.drop(columns=['pv_production', 'wind_production', 'consumption', 'spot_market_price'])
+
+
+    X_test_transformed = preproc.transform_data(X_test)
+    columns_drop = ['minmaxscaler__dew_point_100m:C', 'minmaxscaler__month_sine', 'minmaxscaler__total_cloud_cover:p',
+                    'minmaxscaler__sin_sun_azimuth:d', 'minmaxscaler__t_100m:C', 'minmaxscaler__t_50m:C',
+                    'minmaxscaler__high_cloud_cover:p', 'minmaxscaler__t_10m:C', 'minmaxscaler__temp', 'minmaxscaler__wind_speed_50m:ms',
+                    'minmaxscaler__relative_humidity_100m:p', 'minmaxscaler__relative_humidity_10m:p', 'minmaxscaler__wind_speed_10m:ms',
+                    'onehotencoder__precip_type:idx_1.0', 'minmaxscaler__effective_cloud_cover:p', 'minmaxscaler__relative_humidity_50m:p',
+                    'minmaxscaler__sin_wind_dir_2m:d', 'minmaxscaler__low_cloud_cover:p', 'minmaxscaler__cos_wind_dir_50m:d',
+                    'minmaxscaler__wind_speed_100m:ms', 'minmaxscaler__precip_1h:mm', 'minmaxscaler__direct_rad_1h:Wh',
+                    'minmaxscaler__sin_wind_dir_10m:d', 'onehotencoder__precip_type:idx_0.0', 'minmaxscaler__cos_wind_dir_2m:d',
+                    'minmaxscaler__season_sine', 'minmaxscaler__clear_sky_rad:W', 'minmaxscaler__dew_point_10m:C', 'minmaxscaler__prob_precip_1h:p',
+                    'minmaxscaler__wind_speed_2m:ms','minmaxscaler__cos_wind_dir_10m:d', 'minmaxscaler__dew_point_2m:C',
+                    'minmaxscaler__cos_wind_dir_100m:d', 'minmaxscaler__sunshine_duration_1h:min','minmaxscaler__relative_humidity_2m:p',
+                    'minmaxscaler__season_cosine', 'minmaxscaler__diffuse_rad_1h:Wh', 'minmaxscaler__clear_sky_energy_1h:J',
+                    'onehotencoder__precip_type:idx_3.0', 'onehotencoder__precip_type:idx_2.0']
+
+    X_test_transformed = X_test_transformed.drop(columns = columns_drop).copy()
+    X_test_transformed = X_test_transformed.iloc[:120]
+    X_test_transformed = np.expand_dims(X_test_transformed, axis=0)
+    y_pred= model.predict(X_test_transformed)
+    return y_pred
