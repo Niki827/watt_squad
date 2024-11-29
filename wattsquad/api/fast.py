@@ -32,6 +32,8 @@ import pandas as pd
 from pydantic import BaseModel
 import requests
 
+from wattsquad.ml_logic.calculations import cost_savings
+
 
 class DataFrameRequest(BaseModel):
     data: list[dict]
@@ -72,12 +74,20 @@ def root():
 
 ## PREDICT ENDPOINT
 
-@app.post("/predict")
-def predict(request: DataFrameRequest):
-    print(request)
-    data = pd.DataFrame(request.data)
-    print(data)
-    return {"message": "DataFrame received successfully",
-            "df": data.to_dict(orient='records')}
+#@app.post("/predict")
+# def predict(request: DataFrameRequest):
+#     print(request)
+#     data = pd.DataFrame(request.data)
+#     print(data)
+#     return {"message": "DataFrame received successfully",
+#             "df": data.to_dict(orient='records')}
 
 # app.state.model = load_model()
+
+@app.get("/predict")
+def predict(flexibility_degree):
+
+    my_cost_savings = cost_savings(flexibility_degree=flexibility_degree)
+
+    return {"message": f"Cost Savings for {flexibility_degree}% flexibility degree",
+            "df": my_cost_savings.to_dict(orient='records')}

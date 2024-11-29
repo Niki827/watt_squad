@@ -3,8 +3,9 @@ This file contains all the important calculations necessary to produce the API a
 '''
 # Importing packages
 import pandas as pd
-import models
 
+from wattsquad.ml_logic import preproc
+from wattsquad.ml_logic import models
 
 # Actual production and consumption
 def actual_wind_production():
@@ -90,7 +91,7 @@ def pred_net_electricity_cost():
     pass
 
 
-def load_data(start_date, end_date):
+def load_data():
     '''
     This function loads actual and forecasted production and consumption data for the cost_savings() function down below.
 	•	The expected columns in data are:
@@ -118,13 +119,25 @@ def load_data(start_date, end_date):
 
     # merging the predictions on the timestamp
     solar_predictions_df = models.XGBRegressor_solar()
-    data.merge(solar_predictions_df, on='timestamp')
+    data = data.merge(solar_predictions_df, on='timestamp')
+
+
+    # the code below uses actual values for consumption and wind_production as placeholders until corresponding forecasts are ready
+    placeholder_data = pd.read_csv('raw_data/test.csv')
+    placeholder_data.rename(columns={'time': 'timestamp'}, inplace=True)
+    placeholder_data = placeholder_data[['timestamp', 'wind_production', 'consumption']]
+    placeholder_data.rename(columns={'consumption': 'forecasted_consumption'}, inplace=True)
+    # merging with the data df
+    data = data.merge(placeholder_data, on='timestamp')
+
+    # creating forecasted_production column
+    data['forecasted_production'] = data['wind_production'] + data['pv_forecast']
+    data = data[['timestamp', 'actual_consumption', 'forecasted_consumption', 'actual_production', 'forecasted_production', 'electricity_price']]
 
     return data
 
-
 # Predicting cost savings if consumption can be shifted
-def cost_savings(start_date, end_date, flexibility_degree):
+def cost_savings(flexibility_degree : float):
     '''
     Calculates cost savings by optimizing energy consumption patterns to align better with renewable energy production, based on a user-defined flexibility degree.
 
@@ -201,7 +214,7 @@ def cost_savings(start_date, end_date, flexibility_degree):
     - Results depend on the accuracy of forecasted data and the flexibility degree specified.
     '''
     # Load data
-    data = load_data(start_date, end_date)
+    data = load_data()
 
     # Ensure 'timestamp' is datetime and create 'date' column
     data['timestamp'] = pd.to_datetime(data['timestamp'])
@@ -218,7 +231,7 @@ def cost_savings(start_date, end_date, flexibility_degree):
     data = data.merge(daily_forecast, on='date')
 
     # Calculate total flexible consumption per day
-    data['total_flexible_consumption'] = data['total_forecasted_consumption'] * (flexibility_degree / 100)
+    data['total_flexible_consumption'] = data['total_forecasted_consumption'] * float(flexibility_degree) / 100
 
     # Calculate unforecasted excess consumption (actual - forecasted)
     data['unforecasted_excess_consumption'] = data['actual_consumption'] - data['forecasted_consumption']
@@ -261,7 +274,7 @@ def cost_savings(start_date, end_date, flexibility_degree):
                     break
 
                 # Maximum shiftable consumption from deficit hour
-                max_shift_from_deficit = row_d['forecasted_consumption'] * (flexibility_degree / 100)
+                max_shift_from_deficit = row_d['forecasted_consumption'] * (float(flexibility_degree) / 100)
 
                 # Determine the amount that can be shifted
                 shift_amount = min(
@@ -332,3 +345,10 @@ def cost_savings(start_date, end_date, flexibility_degree):
     })
 
     return result
+
+    # note that we can also return the columns data['cost_without_shifting'] and data['cost_with_shifting'] to return dataframes that provide cost savings on a daily/hourly basis
+    # might be nice to visualize instead of stating just a single result
+    # will leave the single result for now however, better to validate the API.
+
+my_cost_savings = cost_savings(0.9)
+print(my_cost_savings)
