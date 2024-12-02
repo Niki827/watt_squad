@@ -1,9 +1,9 @@
-from models import predict_rnn_solar
-pred = predict_rnn_solar()
+from wattsquad.ml_logic.models import predict_rnn_solar
+from wattsquad.ml_logic.outputs import prediction_accuracy
 
-print(pred)
-# from keras.models import load_model
+# pred = predict_rnn_solar()
+
+# print(pred)
 
 
-# model = load_model('rnn_solar')
-# model.
+prediction_accuracy()

@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from xgboost import XGBRegressor
-import preproc
+from wattsquad.ml_logic import preproc
 from keras import models
 from keras import layers
 from keras import optimizers, metrics
@@ -180,7 +180,7 @@ def init_model(X_train, y_train):
     model.add(layers.Lambda(lambda x: x[:, -24:, :]))  # Keep only the last 12 time steps
 
     ## 1.3 - Hidden Dense Layer
-    model.add(layers.TimeDistributed(layers.Dense(64, activation="relu")))
+    model.add(layers.TimeDistributed(layers.Dense(32, activation="relu")))
 
     ## 1.4 - Predictive Dense Layer
     model.add(layers.TimeDistributed(layers.Dense(1, activation='linear')))
@@ -272,7 +272,7 @@ def RNN_solar():
     df = df.drop(columns = columns_drop).copy()
 
     # Five days as input length
-    INPUT_LENGTH = 24 * 5 # records every hour x 24 hours
+    INPUT_LENGTH = 24 * 5 * 2 # records every hour x 24 hours
                         # for 5 days
 
     # 12 hours as output length
@@ -307,16 +307,15 @@ def RNN_solar():
     # 2 - Training
     # ====================================
     model, history = fit_model(model, X_train, y_train, X_val, y_val)
-
-    model.saved_model('rnn_solar')
+    #breakpoint()
+    model.save('rnn_solar.h5')
 
     return model, history
 
 
-
 def predict_rnn_solar():
-    model = load_model('rnn_solar')
-    train_data = pd.read_csv('raw_data/test.csv')
+    model = load_model('rnn_solar.h5')
+    train_data = pd.read_csv('raw_data/train.csv')
     X_train = train_data.drop(columns=['pv_production', 'wind_production', 'consumption', 'spot_market_price'])
 
 
@@ -336,12 +335,13 @@ def predict_rnn_solar():
                     'onehotencoder__precip_type:idx_3.0', 'onehotencoder__precip_type:idx_2.0']
 
     X_train_transformed = X_train_transformed.drop(columns = columns_drop).copy()
-    X_train_transformed = X_train_transformed.iloc[-120:]
+    X_train_transformed = X_train_transformed.iloc[-240:]
     X_train_transformed = np.expand_dims(X_train_transformed, axis=0)
-    y_pred= model.predict(X_train_transformed)
+    y_pred= model.predict(X_train_transformed)[0]
     return y_pred
 
 
+#Consumption
 def RNN_consumption():
     '''
     This function will build an LSTM to predict the consumption of the Norwegian Rye microgrid during the testing period.
@@ -392,10 +392,10 @@ def RNN_consumption():
     df = df.drop(columns = columns_drop).copy()
 
     # Five days as input length
-    INPUT_LENGTH = 24 * 5 # records every hour x 24 hours
-                        # for 5 days
+    INPUT_LENGTH = 24 * 5 * 2# records every hour x 24 hours
+                        # for 10 days
 
-    # 12 hours as output length
+    # 24 hours as output length
     OUTPUT_LENGTH = 24
 
     #How many mini sequences do i want in my train and val set? Is according to the split_ratio
@@ -428,34 +428,20 @@ def RNN_consumption():
     # ====================================
     model, history = fit_model(model, X_train, y_train, X_val, y_val)
 
-    model.saved_model('rnn_consumption')
+    model.save('rnn_consumption.h5')
 
     return model, history
 
 
-def predict_rnn_solar():
-    model = load_model('rnn_consumption')
+def predict_rnn_consumption():
     train_data = pd.read_csv('raw_data/test.csv')
     X_train = train_data.drop(columns=['pv_production', 'wind_production', 'consumption', 'spot_market_price'])
 
-
     X_train_transformed = preproc.transform_data(X_train)
-    columns_drop = ['minmaxscaler__dew_point_100m:C', 'minmaxscaler__month_sine', 'minmaxscaler__total_cloud_cover:p',
-                    'minmaxscaler__sin_sun_azimuth:d', 'minmaxscaler__t_100m:C', 'minmaxscaler__t_50m:C',
-                    'minmaxscaler__high_cloud_cover:p', 'minmaxscaler__t_10m:C', 'minmaxscaler__temp', 'minmaxscaler__wind_speed_50m:ms',
-                    'minmaxscaler__relative_humidity_100m:p', 'minmaxscaler__relative_humidity_10m:p', 'minmaxscaler__wind_speed_10m:ms',
-                    'onehotencoder__precip_type:idx_1.0', 'minmaxscaler__effective_cloud_cover:p', 'minmaxscaler__relative_humidity_50m:p',
-                    'minmaxscaler__sin_wind_dir_2m:d', 'minmaxscaler__low_cloud_cover:p', 'minmaxscaler__cos_wind_dir_50m:d',
-                    'minmaxscaler__wind_speed_100m:ms', 'minmaxscaler__precip_1h:mm', 'minmaxscaler__direct_rad_1h:Wh',
-                    'minmaxscaler__sin_wind_dir_10m:d', 'onehotencoder__precip_type:idx_0.0', 'minmaxscaler__cos_wind_dir_2m:d',
-                    'minmaxscaler__season_sine', 'minmaxscaler__clear_sky_rad:W', 'minmaxscaler__dew_point_10m:C', 'minmaxscaler__prob_precip_1h:p',
-                    'minmaxscaler__wind_speed_2m:ms','minmaxscaler__cos_wind_dir_10m:d', 'minmaxscaler__dew_point_2m:C',
-                    'minmaxscaler__cos_wind_dir_100m:d', 'minmaxscaler__sunshine_duration_1h:min','minmaxscaler__relative_humidity_2m:p',
-                    'minmaxscaler__season_cosine', 'minmaxscaler__diffuse_rad_1h:Wh', 'minmaxscaler__clear_sky_energy_1h:J',
-                    'onehotencoder__precip_type:idx_3.0', 'onehotencoder__precip_type:idx_2.0']
-
-    X_train_transformed = X_train_transformed.drop(columns = columns_drop).copy()
     X_train_transformed = X_train_transformed.iloc[-120:]
     X_train_transformed = np.expand_dims(X_train_transformed, axis=0)
+
+
+    model = load_model('rnn_consumption')
     y_pred= model.predict(X_train_transformed)
     return y_pred
