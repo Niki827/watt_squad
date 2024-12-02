@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from xgboost import XGBRegressor
-from wattsquad.ml_logic import preproc
+import preproc
 
 
 # creating an XGBRegressor model for solar production
