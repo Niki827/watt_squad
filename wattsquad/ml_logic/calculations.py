@@ -59,7 +59,7 @@ def load_data():
     '''
 
     # Importing data for testing period
-    data = pd.read_csv("raw_data/test.csv")
+    data = pd.read_csv("raw_data/test.csv")[:24]
 
     # Renaming columns
     data.rename(columns={'time': 'timestamp'}, inplace=True)
@@ -74,17 +74,22 @@ def load_data():
 
 
     # merging the predictions on the timestamp
-    solar_predictions_df = models.XGBRegressor_solar()
-    data = data.merge(solar_predictions_df, on='timestamp')
+    # solar_predictions_df = models.XGBRegressor_solar()
+    # data = data.merge(solar_predictions_df, on='timestamp')
 
 
     # the code below uses actual values for consumption and wind_production as placeholders until corresponding forecasts are ready
 
-    # receive data from model (dataframe with 12 values for consumption)
-    forecasted_consumption = models.predict_rnn_solar()
+    # receive data from model (dataframe with 24 values for consumption)
+    forecasted_solar_prod = models.predict_rnn_solar()
+    forecasted_consumption = models.predict_rnn_consumption()
+
 
     # merge with main dataframe
+    data['forecasted_solar_prod'] = forecasted_solar_prod
     data['forecasted_consumption'] = forecasted_consumption
+
+
 
     # placeholder_data = pd.read_csv('raw_data/test.csv')
     # placeholder_data.rename(columns={'time': 'timestamp'}, inplace=True)
