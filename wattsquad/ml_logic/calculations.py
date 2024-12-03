@@ -8,8 +8,8 @@ from wattsquad.ml_logic import preproc
 
 
 def load_entire_data():
-    train_data = pd.read_csv("../../raw_data/train.csv")
-    test_data = pd.read_csv("../../raw_data/test.csv")
+    train_data = pd.read_csv("raw_data/train.csv")
+    test_data = pd.read_csv("raw_data/test.csv")
 
     # Renaming columns
     train_data.rename(columns={'time': 'timestamp'}, inplace=True)
@@ -27,10 +27,10 @@ def load_entire_data():
     # Dropping irrelevant columns
     data = data[['timestamp', 'actual_consumption', 'actual_production', 'electricity_price']]
 
-    data = pd.read_csv("../../raw_data/train.csv")
+    data = pd.read_csv("raw_data/train.csv")
 
 def load_training_data():
-    data = pd.read_csv("../../raw_data/train.csv")
+    data = pd.read_csv("raw_data/train.csv")
 
     # Renaming columns
     data.rename(columns={'time': 'timestamp'}, inplace=True)
@@ -82,12 +82,13 @@ def load_data():
 
     # receive data from model (dataframe with 24 values for consumption)
     forecasted_solar_prod = models.predict_rnn_solar()
-    forecasted_consumption = models.predict_rnn_consumption()
+
+    #forecasted_consumption = models.predict_rnn_consumption()
 
 
     # merge with main dataframe
     data['forecasted_solar_prod'] = forecasted_solar_prod
-    data['forecasted_consumption'] = forecasted_consumption
+    #data['forecasted_consumption'] = forecasted_consumption
 
 
 
