@@ -7,7 +7,6 @@ yapf
 matplotlib
 pygeohash
 pytest
-seaborn
 numpy==1.23.5
 pandas==1.5.3
 scipy==1.10.0

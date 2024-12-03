@@ -1,6 +1,6 @@
 raw_data/
 :Zone.Identifier
-
+models/
 .env
 .env.yaml
 
