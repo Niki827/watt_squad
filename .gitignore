@@ -1,6 +1,7 @@
 raw_data/
+*.DS_Store
 :Zone.Identifier
-
+models/
 .env
 .env.yaml
 
