@@ -107,22 +107,20 @@ def get_RNN_data(cities=[athens, berlin, london, madrid, paris]):
 
 # Define init_model function (LSTM)
 def init_model(X_train, y_train):
+    # 1 - RNN architecture
     model = models.Sequential()
-
-    # First LSTM layer with return_sequences=True
+    ## 1.1 - Recurrent Layer
     model.add(layers.LSTM(64,
                           activation='tanh',
-                          return_sequences=True,  # Ensures output is 3D
-                          kernel_regularizer=L1L2(l1=0.05, l2=0.05),
-                          input_shape=(X_train.shape[1], X_train.shape[2])))
+                          return_sequences=False,
+                          #kernel_regularizer=L1L2(l1=0.05, l2=0.05),
+                          input_shape=(X_train.shape[1], X_train.shape[2])  # Specify input shape
+                          ))
+    ## 1.2 - Predictive Dense Layers
+    output_length = y_train.shape[1]
+    model.add(layers.Dense(output_length, activation='linear'))
 
-    # Second LSTM layer to match the ground truth timesteps
-    model.add(layers.LSTM(16, activation='tanh', return_sequences=False))  # Outputs 2D tensor (batch_size, 16)
-
-    # Dense layers for prediction
-    model.add(layers.Dense(365, activation='linear'))  # Predicts 365 timesteps
-
-    # Compile the model
+    # 2 - Compiler
     adam = optimizers.Adam(learning_rate=0.02)
     model.compile(loss='mse', optimizer=adam, metrics=["mae"])
 
@@ -145,7 +143,7 @@ def build_and_save_model():
     X_train, y_train, X_test, y_test = get_RNN_data(cities=[athens, berlin, london, madrid, paris])
     model = init_model(X_train, y_train)  # Assumes init_model is defined for LSTM
     model, history = fit_model(model, X_train, y_train)
-    model.save('eu_RNN_model_carl')
+    model.save('eu_RNN_model')
     return model, history
 
 build_model = build_and_save_model()

@@ -12,7 +12,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 # Defining the fetch_data function to fetch data from the EU API. Standard values for lat and lon are Le Wagon Berlin.
-def fetch_data(lat=52.506971, lon=13.391474):
+def fetch_data(lat, lon):
     BASE_URI = 'https://re.jrc.ec.europa.eu/api/seriescalc' # for the hourly radiation
     startyear = 2021
     endyear = 2023

@@ -8,7 +8,7 @@ from tensorflow.keras.models import load_model
 # Preprocess all the data for the location requested
 # Fetch the data from the EU API. Default lat and lon are for Le Wagon Berlin - we can make them dynamic
 
-def preprocessing_data(lat=52.506971, lon=13.391474):
+def preprocessing_data(lat, lon):
     result = preprocessing.fetch_data(lat=lat, lon=lon)
     df = preprocessing.convert_data(result)
     aggregated_df = preprocessing.aggregate_data(df)
@@ -31,7 +31,7 @@ def preprocessing_data(lat=52.506971, lon=13.391474):
 
 # Load the saved RNN model
 def load_our_model():
-    model = load_model('eu_RNN_model_carl')
+    model = load_model('eu_RNN_model')
     return model
 
 # Generate predictions for PV production
@@ -57,12 +57,13 @@ def visualize(y_lewagon_pred):
     plt.show()
 
 # Run the whole process
-def predict_on_website(lat=52.506971, lon=13.391474):
+def predict_on_website(lat, lon):
     lewagon_X_reshaped, lewagon_y_reshaped = preprocessing_data(lat=lat, lon=lon)
     model = load_our_model()
     y_lewagon_pred = predict(lewagon_X_reshaped, model)
-    #line_graph = visualize(y_lewagon_pred)
-    return y_lewagon_pred
+    sum_y_lewagon_pred = y_lewagon_pred.sum()
+    line_graph = visualize(y_lewagon_pred)
+    return sum_y_lewagon_pred
 
-our_predictions = predict_on_website()
-print(our_predictions.shape)
+our_line_graph = predict_on_website(33.4489, 70.6693)
+print(our_line_graph)

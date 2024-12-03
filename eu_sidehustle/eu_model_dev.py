@@ -202,5 +202,3 @@ def fit_model(model):
     return model, history
 
 model, history = fit_model(model)
-
-#
