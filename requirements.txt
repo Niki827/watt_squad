@@ -42,3 +42,5 @@ pytest-asyncio
 # ours
 xgboost==1.6.2
 streamlit
+folium
+streamlit_folium
