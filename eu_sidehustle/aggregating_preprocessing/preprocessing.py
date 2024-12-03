@@ -62,47 +62,6 @@ def preprocess_data(df):
 
     return df
 
-
-
-
-def time_transformed(data):
-    """takes a df and splits the 'time' feature into three features: hour, month, season;
-    drops the original time column"""
-
-    feature = pd.to_datetime(data.time)
-
-    hour = feature.dt.hour
-    month  = feature.dt.month
-
-    def assign_season(month):
-        if month in [3, 4, 5]:
-            return 1  # Spring
-        elif month in [6, 7, 8]:
-            return 2  # Summer
-        elif month in [9, 10, 11]:
-            return 3  # Fall
-        else:  # December, January, February
-            return 4  # Winter
-
-    season = month.apply(assign_season)
-    hour_sine = np.sin(2 * np.pi * hour / 24)
-    hour_cosine = np.cos(2 * np.pi * hour / 24)
-    month_sine = np.sin(2 * np.pi * month / 12)
-    month_cosine = np.cos(2 * np.pi * month / 12)
-    season_sine = np.sin(2 * np.pi * season / 4)
-    season_cosine = np.cos(2 * np.pi * season / 4)
-
-    data["hour_sine"] = hour_sine
-    data["hour_cosine"] = hour_cosine
-    data["month_sine"] = month_sine
-    data["month_cosine"] = month_cosine
-    data["season_sine"] = season_sine
-    data["season_cosine"] = season_cosine
-
-    data = data.drop(columns=["time"])
-
-    return data
-
 # Process each DataFrame and store the results back into the dictionary
 preprocessed_dfs = {}
 for city, df in dfs.items():
