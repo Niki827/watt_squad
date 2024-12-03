@@ -89,7 +89,6 @@ def XGBRegressor_solar():
     return predictions_df
 
 
-
 # train validation split for sequences
 def train_val_split(df:pd.DataFrame,
                     train_val_ratio: float,
@@ -338,6 +337,7 @@ def predict_rnn_solar():
     X_train_transformed = X_train_transformed.iloc[-240:]
     X_train_transformed = np.expand_dims(X_train_transformed, axis=0)
     y_pred= model.predict(X_train_transformed)[0]
+    y_pred_df = pd.DataFrame(y_pred)
     return y_pred
 
 
@@ -373,23 +373,11 @@ def RNN_consumption():
     df[TARGET] = y_train
 
     # Drop columns which are not necessary
-    columns_drop = ['minmaxscaler__dew_point_100m:C', 'minmaxscaler__month_sine', 'minmaxscaler__total_cloud_cover:p',
-                    'minmaxscaler__sin_sun_azimuth:d', 'minmaxscaler__t_100m:C', 'minmaxscaler__t_50m:C',
-                    'minmaxscaler__high_cloud_cover:p', 'minmaxscaler__t_10m:C', 'minmaxscaler__temp', 'minmaxscaler__wind_speed_50m:ms',
-                    'minmaxscaler__relative_humidity_100m:p', 'minmaxscaler__relative_humidity_10m:p', 'minmaxscaler__wind_speed_10m:ms',
-                    'onehotencoder__precip_type:idx_1.0', 'minmaxscaler__effective_cloud_cover:p', 'minmaxscaler__relative_humidity_50m:p',
-                    'minmaxscaler__sin_wind_dir_2m:d', 'minmaxscaler__low_cloud_cover:p', 'minmaxscaler__cos_wind_dir_50m:d',
-                    'minmaxscaler__wind_speed_100m:ms', 'minmaxscaler__precip_1h:mm', 'minmaxscaler__direct_rad_1h:Wh',
-                    'minmaxscaler__sin_wind_dir_10m:d', 'onehotencoder__precip_type:idx_0.0', 'minmaxscaler__cos_wind_dir_2m:d',
-                    'minmaxscaler__season_sine', 'minmaxscaler__clear_sky_rad:W', 'minmaxscaler__dew_point_10m:C', 'minmaxscaler__prob_precip_1h:p',
-                    'minmaxscaler__wind_speed_2m:ms','minmaxscaler__cos_wind_dir_10m:d', 'minmaxscaler__dew_point_2m:C',
-                    'minmaxscaler__cos_wind_dir_100m:d', 'minmaxscaler__sunshine_duration_1h:min','minmaxscaler__relative_humidity_2m:p',
-                    'minmaxscaler__season_cosine', 'minmaxscaler__diffuse_rad_1h:Wh', 'minmaxscaler__clear_sky_energy_1h:J',
-                    'onehotencoder__precip_type:idx_3.0', 'onehotencoder__precip_type:idx_2.0']
+    #columns_drop =
 
 
     # Dropping the unimportant columns
-    df = df.drop(columns = columns_drop).copy()
+    #df = df.drop(columns = columns_drop).copy()
 
     # Five days as input length
     INPUT_LENGTH = 24 * 5 * 2# records every hour x 24 hours
@@ -432,16 +420,19 @@ def RNN_consumption():
 
     return model, history
 
+#RNN_consumption()
+
 
 def predict_rnn_consumption():
-    train_data = pd.read_csv('raw_data/test.csv')
+    train_data = pd.read_csv('raw_data/train.csv')
     X_train = train_data.drop(columns=['pv_production', 'wind_production', 'consumption', 'spot_market_price'])
 
     X_train_transformed = preproc.transform_data(X_train)
-    X_train_transformed = X_train_transformed.iloc[-120:]
+    X_train_transformed = X_train_transformed.iloc[-240:]
     X_train_transformed = np.expand_dims(X_train_transformed, axis=0)
 
 
-    model = load_model('rnn_consumption')
-    y_pred= model.predict(X_train_transformed)
+    model = load_model('rnn_consumption.h5')
+    y_pred= model.predict(X_train_transformed)[0]
+    y_pred_df = pd.DataFrame(y_pred)
     return y_pred
