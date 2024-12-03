@@ -75,4 +75,11 @@ def XGBRegressor_solar():
 
     # renaming the column 'time' to 'timestamp' in order to integrate it into calculations.load_data()
     predictions_df.rename(columns={'time': 'timestamp'}, inplace=True)
+    # Save the model to a binary file
+    xgb_reg.save_model("optimal_xgboost_model.json")
+
     return predictions_df
+
+
+my_preds = XGBRegressor_solar()
+print(my_preds)
