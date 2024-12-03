@@ -3,8 +3,7 @@ This file contains all the important calculations necessary to produce the API a
 '''
 # Importing packages
 import pandas as pd
-import models
-import preproc
+from wattsquad.ml_logic import models, preproc
 
 
 def load_entire_data():
@@ -82,12 +81,13 @@ def load_data():
 
     # receive data from model (dataframe with 24 values for consumption)
     forecasted_solar_prod = models.predict_rnn_solar()
-    forecasted_consumption = models.predict_rnn_consumption()
+
+    #forecasted_consumption = models.predict_rnn_consumption()
 
 
     # merge with main dataframe
     data['forecasted_solar_prod'] = forecasted_solar_prod
-    data['forecasted_consumption'] = forecasted_consumption
+    #data['forecasted_consumption'] = forecasted_consumption
 
 
 
