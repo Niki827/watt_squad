@@ -128,5 +128,8 @@ def transform_data(data):
     data_transformed = pd.DataFrame(data_transformed, columns=preproc.get_feature_names_out())
     data_transformed['onehotencoder__precip_type:idx_2.0'] = 0 # test data didn't have this type, so adding it here so we have an equal num of columns between train and test
 
+    ## do we need to change the order of the columns???
+    ## also, doesn't this set all the precip type 2.0 in the train set to 0? mistake
+
     print('➡️ preprocessing done')
     return data_transformed
