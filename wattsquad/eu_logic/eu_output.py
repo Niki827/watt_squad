@@ -1,5 +1,6 @@
 import preprocessing_predictions as preprocessing
 import seaborn as sns
+import pandas as pd
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
 
@@ -55,14 +56,45 @@ def visualize(y_lewagon_pred):
     plt.title("Predicted Photovoltaic Output Over Time")
     plt.show()
 
+
+def format_predictions(y_lewagon_pred):
+    """
+    Formats the predictions into a DataFrame with the following columns:
+    - 'date': A datetime object representing dates from 01/01/2023 to 31/12/2023
+    - 'predicted_output': The values from y_lewagon_pred flattened from columns
+
+    Args:
+    - y_lewagon_pred (numpy array): Array of predicted values with shape (1, 365)
+
+    Returns:
+    - pd.DataFrame: Formatted DataFrame
+    """
+    # Ensure the input is a 2D array with 1 row and 365 columns
+    if len(y_lewagon_pred.shape) == 2 and y_lewagon_pred.shape[0] == 1:
+        y_lewagon_pred_flat = y_lewagon_pred.flatten()
+    else:
+        raise ValueError("y_lewagon_pred must have a shape of (1, 365)")
+
+    # Generate date range for the year 2023
+    dates = pd.date_range(start="2023-01-01", end="2023-12-31")
+
+    # Create DataFrame with two columns: date and predicted_output
+    formatted_df = pd.DataFrame({
+        "date": dates,
+        "predicted_output": y_lewagon_pred_flat
+    })
+
+    return formatted_df
+
 # Run the whole process
 def predict_on_website(lat, lon):
     lewagon_X_reshaped, lewagon_y_reshaped = preprocessing_data(lat=lat, lon=lon)
     model = load_our_model()
     y_lewagon_pred = predict(lewagon_X_reshaped, model)
+    y_lewagon_pred_df = format_predictions(y_lewagon_pred)
     #sum_y_lewagon_pred = y_lewagon_pred.sum()
-    line_graph = visualize(y_lewagon_pred)
-    return line_graph
+    #line_graph = visualize(y_lewagon_pred)
+    return y_lewagon_pred_df
 
-our_line_graph = predict_on_website(41.3874, 2.1686)
-print(our_line_graph)
+our_predictions = predict_on_website(41.3874, 2.1686)
+print(our_predictions)
