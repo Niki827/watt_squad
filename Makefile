@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := default
 #################### PACKAGE ACTIONS ###################
 reinstall_package:
-	@pip uninstall -y watt-Squad || :
+	@pip uninstall -y wattsquad || :
 	@pip install -e .
 
 run_preprocess:
@@ -123,7 +123,30 @@ clean:
 	@rm -f **/.ipynb_checkpoints
 
 
+# DOCKER DEPLOYMENT
 
+build_container_local:
+	docker build --tag=$$IMAGE:dev .
+
+
+build_for_production:
+	docker build -t  $$GCP_REGION-docker.pkg.dev/$$GCP_PROJECT/$$DOCKER_REPO_NAME/$$IMAGE:prod .
+
+## Step 1
+allow_docker_push:
+	gcloud auth configure-docker $GCP_REGION-docker.pkg.dev
+
+# Step 3
+build_for_production:
+	docker build -t  $$GCP_REGION-docker.pkg.dev/$$GCP_PROJECT/$$DOCKER_REPO_NAME/$$IMAGE:prod .
+
+## Step 4
+push_image_production:
+	docker push $$GCP_REGION-docker.pkg.dev/$$GCP_PROJECT/$$DOCKER_REPO_NAME/$$IMAGE:prod
+
+# Step 5
+deploy_to_cloud_run:
+	gcloud run deploy --image $$GCP_REGION-docker.pkg.dev/$$GCP_PROJECT/$$DOCKER_REPO_NAME/$$IMAGE:prod --memory $$MEMORY --region $$GCP_REGION
 
 ## STREAMLIT
 

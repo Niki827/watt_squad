@@ -3,13 +3,13 @@ This file contains all the important calculations necessary to produce the API a
 '''
 # Importing packages
 import pandas as pd
-from wattsquad.ml_logic import models
-from wattsquad.ml_logic import preproc
+import models
+import preproc
 
 
 def load_entire_data():
-    train_data = pd.read_csv("../../raw_data/train.csv")
-    test_data = pd.read_csv("../../raw_data/test.csv")
+    train_data = pd.read_csv("raw_data/train.csv")
+    test_data = pd.read_csv("raw_data/test.csv")
 
     # Renaming columns
     train_data.rename(columns={'time': 'timestamp'}, inplace=True)
@@ -27,10 +27,10 @@ def load_entire_data():
     # Dropping irrelevant columns
     data = data[['timestamp', 'actual_consumption', 'actual_production', 'electricity_price']]
 
-    data = pd.read_csv("../../raw_data/train.csv")
+    data = pd.read_csv("raw_data/train.csv")
 
 def load_training_data():
-    data = pd.read_csv("../../raw_data/train.csv")
+    data = pd.read_csv("raw_data/train.csv")
 
     # Renaming columns
     data.rename(columns={'time': 'timestamp'}, inplace=True)
@@ -59,7 +59,7 @@ def load_data():
     '''
 
     # Importing data for testing period
-    data = pd.read_csv("raw_data/test.csv")[:24]
+    data = pd.read_csv("raw_data/test.csv")
 
     # Renaming columns
     data.rename(columns={'time': 'timestamp'}, inplace=True)
@@ -74,29 +74,24 @@ def load_data():
 
 
     # merging the predictions on the timestamp
-    # solar_predictions_df = models.XGBRegressor_solar()
-    # data = data.merge(solar_predictions_df, on='timestamp')
+    solar_predictions_df = models.XGBRegressor_solar()
+    data = data.merge(solar_predictions_df, on='timestamp')
 
 
     # the code below uses actual values for consumption and wind_production as placeholders until corresponding forecasts are ready
 
-    # receive data from model (dataframe with 24 values for consumption)
-    forecasted_solar_prod = models.predict_rnn_solar()
-    forecasted_consumption = models.predict_rnn_consumption()
-
+    # receive data from model (dataframe with 12 values for consumption)
+    #forecasted_consumption = models.predict_rnn_solar()
 
     # merge with main dataframe
-    data['forecasted_solar_prod'] = forecasted_solar_prod
-    data['forecasted_consumption'] = forecasted_consumption
+    #data['forecasted_consumption'] = forecasted_consumption
 
-
-
-    # placeholder_data = pd.read_csv('raw_data/test.csv')
-    # placeholder_data.rename(columns={'time': 'timestamp'}, inplace=True)
-    # placeholder_data = placeholder_data[['timestamp', 'wind_production', 'consumption']]
-    # placeholder_data.rename(columns={'consumption': 'forecasted_consumption'}, inplace=True)
+    placeholder_data = pd.read_csv('raw_data/test.csv')
+    placeholder_data.rename(columns={'time': 'timestamp'}, inplace=True)
+    placeholder_data = placeholder_data[['timestamp', 'wind_production', 'consumption']]
+    placeholder_data.rename(columns={'consumption': 'forecasted_consumption'}, inplace=True)
     # merging with the data df
-    #data = data.merge(placeholder_data, on='timestamp')
+    data = data.merge(placeholder_data, on='timestamp')
 
     # creating forecasted_production column
     data['forecasted_production'] = data['wind_production'] + data['pv_forecast']
@@ -358,21 +353,41 @@ def cost_savings(flexibility_degree):
     # Calculate cost savings
     cost_savings_value = total_cost_without_shifting - total_cost_with_shifting
 
-    # Compile results
-    result = pd.DataFrame({
-        'Total Cost Without Shifting': [total_cost_without_shifting],
-        'Total Cost With Shifting': [total_cost_with_shifting],
-        'Cost Savings': [cost_savings_value]
-    })
+    # placeholder API data
+    API_placeholder_data = data.copy()
+    API_placeholder_data = API_placeholder_data[['timestamp', 'actual_production', 'actual_consumption', 'excess_consumption_no_shift', 'cost_without_shifting', 'cost_with_shifting', 'adjusted_consumption']]
+    API_placeholder_data['excess_consumption_with_shift'] = API_placeholder_data['adjusted_consumption'] - API_placeholder_data['actual_production']
+    API_placeholder_data['excess_consumption_with_shift'] = API_placeholder_data['excess_consumption_with_shift'].clip(lower=0)
 
-    return result
+    # Add color codes for excess consumption without shifting
+    API_placeholder_data['color_code_without_shift'] = API_placeholder_data['excess_consumption_no_shift'].apply(
+        lambda x: 'green' if x < 0 else 'red' if x > 0 else 'blue'
+    )
+
+    # Add color codes for excess consumption with shifting
+    API_placeholder_data['color_code_with_shift'] = API_placeholder_data['excess_consumption_with_shift'].apply(
+        lambda x: 'green' if x < 0 else 'red' if x > 0 else 'blue'
+    )
+
+    # Limit to 24 hours
+    API_placeholder_data = API_placeholder_data.head(24)
+    print(API_placeholder_data.columns)
+    API_placeholder_data.to_csv('API_placeholder_data.csv', index=False)
+    # Compile results
+    # result = pd.DataFrame({
+    #     'Total Cost Without Shifting': [total_cost_without_shifting],
+    #     'Total Cost With Shifting': [total_cost_with_shifting],
+    #     'Cost Savings': [cost_savings_value]
+    # })
+
+    return API_placeholder_data
 
     # note that we can also return the columns data['cost_without_shifting'] and data['cost_with_shifting'] to return dataframes that provide cost savings on a daily/hourly basis
     # might be nice to visualize instead of stating just a single result
     # will leave the single result for now however, better to validate the API.
 
-#my_cost_savings = cost_savings(0.9)
-#print(my_cost_savings)
+my_cost_savings = cost_savings(0.9)
+print(my_cost_savings)
 
 def actual_battery_percentage(capacity=500, initial_battery_percentage=0):
     """
@@ -467,5 +482,5 @@ def pred_battery_percentage(capacity=500, initial_battery_percentage=0):
     return data
 
 
-my_battery = actual_battery_percentage()
-print(my_battery[['battery_percentage', 'electricity_bought_kwH', 'electricity_bought_NOK']].describe())
+#my_battery = actual_battery_percentage()
+#print(my_battery[['battery_percentage', 'electricity_bought_kwH', 'electricity_bought_NOK']].describe())
