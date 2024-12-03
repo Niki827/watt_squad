@@ -10,7 +10,7 @@ flexibility = st.number_input("Give your flexibility degree: ", value=0)
 if st.button("Predict Your Cost Savings"):
 
     url = 'http://localhost:8000/predict'
-    url_prod = 'https://watt-squad-mvp-image-1071061957527.europe-west1.run.app'
+    # url_prod = 'https://watt-squad-mvp-image-1071061957527.europe-west1.run.app'
 
     params = {
         "flexibility": flexibility

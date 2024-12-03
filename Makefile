@@ -22,7 +22,7 @@ run_workflow:
 	PREFECT__LOGGING__LEVEL=${PREFECT_LOG_LEVEL} python -m taxifare.interface.workflow
 
 run_api:
-	uvicorn taxifare.api.fast:app --reload
+	uvicorn wattsquad.api.fast:app --reload
 
 ##################### TESTS #####################
 test_gcp_setup:

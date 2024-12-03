@@ -1,4 +1,4 @@
-import preprocessing_predictions as preprocessing
+from wattsquad.eu_logic import preprocessing_predictions as preprocessing
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -31,7 +31,7 @@ def preprocessing_data(lat, lon):
 
 # Load the saved RNN model
 def load_our_model():
-    model = load_model('eu_RNN_model')
+    model = load_model('wattsquad/eu_logic/eu_RNN_model')
     return model
 
 # Generate predictions for PV production

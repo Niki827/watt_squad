@@ -96,12 +96,10 @@ def predict(flexibility_degree):
             "df": fake.to_dict(orient='records')}
 
 
-
 @app.get("/eu_predict")
 def eu_predict(lat, lon):
 
     df_eu = predict_on_website(lat=lat, lon=lon)
 
-
-    return {"message": f"Cost Savings for {flexibility_degree}% flexibility degree",
-            "df": fake.to_dict(orient='records')}
+    return {"message": f"Solar Photovoltaic Production Forecast Savings for {lat} latitude and {lon} longitude",
+            "df": df_eu.to_dict(orient='records')}

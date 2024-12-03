@@ -3,7 +3,7 @@ FROM python:3.10.6-slim
 COPY wattsquad wattsquad
 COPY requirements.txt requirements.txt
 COPY setup.py setup.py
-#COPY models models need to add the pickle file
+
 COPY rnn_consumption.h5 rnn_consumption.h5
 COPY rnn_solar.h5 rnn_solar.h5
 
