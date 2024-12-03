@@ -53,9 +53,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-"""
-SHOWING OUR MICROGRID ON THE MAP
-"""
+# """
+# SHOWING OUR MICROGRID ON THE MAP
+# """
 
 # Coordinates of Langorgen
 latitude = 63.418204
@@ -125,7 +125,7 @@ monthly_data_2020['month_year_str'] = monthly_data_2020['month_year'].dt.strftim
 
 if st.button("Check our energy consumption in 2020"):
     # Streamlit UI
-    st.title('Energy Consumption and Production')
+    st.subheader('Energy Consumption and Production')
 
     # Create a figure and axis object
     fig, ax = plt.subplots(figsize=(14, 6))
@@ -241,7 +241,7 @@ if selected_date:
     # ax.plot(filtered_data['timestamp'], filtered_data['actual_production'], label='Production', color='lightgreen', marker='o')
 
     # Formatting the plot
-    ax.set_title(f"Hourly Energy Consumption and Production on {selected_date}", fontsize=16)
+    ax.set_title(f"Energy Consumption and Production on {selected_date}", fontsize=16)
     ax.set_xlabel('Hour of the Day', fontsize=14)
     ax.set_ylabel('Energy (kWh)', fontsize=14)
 
@@ -266,3 +266,35 @@ else:
 st.title("What's next?")
 st.text("Our resolutions for 2021 are to optimise our energy consumption and become even more sustainable.")
 st.text("The question is: how?")
+
+
+# """
+# trying to do Niki's EU rnn model
+# """
+
+# from emily_eu.eu_output import predict_on_website
+# # from emily_eu.aggregating_preprocessing import preprocessing_predictions
+# from emily_eu.aggregating_preprocessing import preprocessing_predictions as preprocessing
+
+# import streamlit as st
+
+# # Assuming you already have the function 'predict_on_website' implemented elsewhere
+# # For example:
+# # def predict_on_website(lat, lon):
+# #     # Your function logic here
+# #     return prediction
+
+# # Streamlit UI
+# st.title("Latitude and Longitude Prediction")
+
+# # Input for Latitude and Longitude
+# latitude = st.number_input("Enter Latitude:", min_value=-90.0, max_value=90.0, step=0.0001)
+# longitude = st.number_input("Enter Longitude:", min_value=-180.0, max_value=180.0, step=0.0001)
+
+# # Check if both latitude and longitude are provided
+# if latitude and longitude:
+#     # Call your function with the provided latitude and longitude
+#     prediction = predict_on_website(latitude, longitude)
+
+#     # Display the result
+#     st.write(f"{prediction}")
