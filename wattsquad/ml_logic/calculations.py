@@ -59,7 +59,7 @@ def load_data():
     '''
 
     # Importing data for testing period
-    data = pd.read_csv("../../raw_data/train.csv")
+    data = pd.read_csv("../../raw_data/test.csv")
 
     # Renaming columns
     data.rename(columns={'time': 'timestamp'}, inplace=True)
