@@ -27,8 +27,8 @@ def XGBRegressor_solar():
     This function will build an XGBRegressor to predict the solar production of the Norwegian Rye microgrid during the testing period.
     '''
     # importing relevant data
-    train_data = pd.read_csv('raw_data/train.csv')
-    test_data = pd.read_csv('raw_data/test.csv')
+    train_data = pd.read_csv('../../raw_data/train.csv')
+    test_data = pd.read_csv('../../raw_data/test.csv')
 
     # creating y_train and y_test
     y_train = train_data['pv_production'].copy()
@@ -80,7 +80,7 @@ def XGBRegressor_solar():
     print("➡️  performed predictions")
 
     #format predictions in a suitable dataframe
-    predictions_df = pd.read_csv("raw_data/test.csv")
+    predictions_df = pd.read_csv("../../raw_data/test.csv")
     predictions_df = predictions_df[['time']]
     predictions_df['pv_forecast'] = y_pred
 

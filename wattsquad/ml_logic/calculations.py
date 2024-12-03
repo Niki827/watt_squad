@@ -3,12 +3,13 @@ This file contains all the important calculations necessary to produce the API a
 '''
 # Importing packages
 import pandas as pd
-from wattsquad.ml_logic import models, preproc
+from wattsquad.ml_logic import models
+from wattsquad.ml_logic import preproc
 
 
 def load_entire_data():
-    train_data = pd.read_csv("raw_data/train.csv")
-    test_data = pd.read_csv("raw_data/test.csv")
+    train_data = pd.read_csv("../../raw_data/train.csv")
+    test_data = pd.read_csv("../../raw_data/test.csv")
 
     # Renaming columns
     train_data.rename(columns={'time': 'timestamp'}, inplace=True)
@@ -26,10 +27,10 @@ def load_entire_data():
     # Dropping irrelevant columns
     data = data[['timestamp', 'actual_consumption', 'actual_production', 'electricity_price']]
 
-    data = pd.read_csv("raw_data/train.csv")
+    data = pd.read_csv("../../raw_data/train.csv")
 
 def load_training_data():
-    data = pd.read_csv("raw_data/train.csv")
+    data = pd.read_csv("../../raw_data/train.csv")
 
     # Renaming columns
     data.rename(columns={'time': 'timestamp'}, inplace=True)
