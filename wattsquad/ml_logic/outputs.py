@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from wattsquad.ml_logic.models import predict_rnn_solar
+from wattsquad.ml_logic.models import predict_rnn_consumption
 
 
 def prediction_accuracy():
@@ -40,13 +41,13 @@ def prediction_accuracy():
     # y_pred_wind = models.predict_rnn_wind()
     # mae_wind = np.mean(abs(y_true_wind - y_pred_wind))
 
-    # #Consumpion
-    # #True
-    # y_true_consumption = y_true['consumption']
-    # y_true_consumption = np.array(y_true_consumption).reshape(24,1)
-    # #Forecast
-    # y_pred_consumption = models.predict_rnn_consumption()
-    # mae_consumption = np.mean(abs(y_true_consumption - y_pred_consumption))
+    #Consumpion
+    #True
+    y_true_consumption = y_true['consumption']
+    y_true_consumption = np.array(y_true_consumption).reshape(24,1)
+    #Forecast
+    y_pred_consumption = predict_rnn_consumption()
+    mae_consumption = np.mean(abs(y_true_consumption - y_pred_consumption))
 
 
     #MAE test
@@ -65,12 +66,12 @@ def prediction_accuracy():
     fig, axes = plt.subplots(3, 1, figsize=(12, 18), sharex=True)
 
     # Plot PV Production (1st subplot)
-    axes[0].plot(y_pred_pv, label='PV Forecast', color='blue', linestyle='-')
-    axes[0].plot(y_true_pv, label='PV Production', color='orange', linestyle='--')
-    axes[0].set_ylabel('PV Production (kWh/h)')
-    axes[0].set_title('PV Forecast vs Actual')
-    axes[0].legend()
-    axes[0].grid(True)
+    # axes[0].plot(y_pred_pv, label='PV Forecast', color='blue', linestyle='-')
+    # axes[0].plot(y_true_pv, label='PV Production', color='orange', linestyle='--')
+    # axes[0].set_ylabel('PV Production (kWh/h)')
+    # axes[0].set_title('PV Forecast vs Actual')
+    # axes[0].legend()
+    # axes[0].grid(True)
 
     # # Plot Wind Production (2nd subplot)
     # axes[1].plot(y_pred_wind, label='Wind Forecast', color='green', linestyle='-')
@@ -80,14 +81,14 @@ def prediction_accuracy():
     # axes[1].legend()
     # axes[1].grid(True)
 
-    # # Plot Consumption (3rd subplot)
-    # axes[2].plot(y_pred_consumption, label='Consumption Forecast', color='purple', linestyle='-')
-    # axes[2].plot(y_true_wind, label='Consumption', color='brown', linestyle='--')
-    # axes[2].set_xlabel('Time (hours)')
-    # axes[2].set_ylabel('Consumption (kWh/h)')
-    # axes[2].set_title('Consumption Forecast vs Actual')
-    # axes[2].legend()
-    # axes[2].grid(True)
+    # Plot Consumption (3rd subplot)
+    axes[2].plot(y_pred_consumption, label='Consumption Forecast', color='purple', linestyle='-')
+    axes[2].plot(y_true_consumption, label='Consumption', color='brown', linestyle='--')
+    axes[2].set_xlabel('Time (hours)')
+    axes[2].set_ylabel('Consumption (kWh/h)')
+    axes[2].set_title('Consumption Forecast vs Actual')
+    axes[2].legend()
+    axes[2].grid(True)
 
     # Adjust layout to avoid overlap
     plt.tight_layout()
