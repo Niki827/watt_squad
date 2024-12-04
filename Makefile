@@ -4,22 +4,7 @@ reinstall_package:
 	@pip uninstall -y wattsquad || :
 	@pip install -e .
 
-run_preprocess:
-	python -c 'from taxifare.interface.main import preprocess; preprocess()'
-
-run_train:
-	python -c 'from taxifare.interface.main import train; train()'
-
-run_pred:
-	python -c 'from taxifare.interface.main import pred; pred()'
-
-run_evaluate:
-	python -c 'from taxifare.interface.main import evaluate; evaluate()'
-
 run_all: run_preprocess run_train run_pred run_evaluate
-
-run_workflow:
-	PREFECT__LOGGING__LEVEL=${PREFECT_LOG_LEVEL} python -m taxifare.interface.workflow
 
 run_api:
 	uvicorn wattsquad.api.fast:app --reload
@@ -45,20 +30,6 @@ test_api_predict:
 	tests/api/test_endpoints.py::test_predict_has_key --asyncio-mode=strict -W "ignore" \
 	tests/api/test_endpoints.py::test_predict_val_is_float --asyncio-mode=strict -W "ignore"
 
-test_api_on_docker:
-	pytest \
-	tests/api/test_docker_endpoints.py --asyncio-mode=strict -W "ignore"
-
-test_api_on_prod:
-	pytest \
-	tests/api/test_cloud_endpoints.py --asyncio-mode=strict -W "ignore"
-
-
-
-
-
-reset_all_files: reset_local_files reset_bq_files reset_gcs_files
-
 
 ##################### CLEANING #####################
 
@@ -74,16 +45,14 @@ clean:
 	@rm -f **/.ipynb_checkpoints
 
 
-# DOCKER DEPLOYMENT
-
+# ----------------------------------
+#         DOCKER DEPLOYMENT
+# ----------------------------------
 build_container_local:
 	docker build --tag=$$IMAGE:dev .
 
 test_run:
 	docker run --env-file .env -p 8000:8000 $$IMAGE:dev
-
-build_for_production:
-	docker build -t  $$GCP_REGION-docker.pkg.dev/$$GCP_PROJECT/$$DOCKER_REPO_NAME/$$IMAGE:prod .
 
 ## Step 1
 allow_docker_push:
