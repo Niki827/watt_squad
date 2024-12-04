@@ -4,12 +4,7 @@ This file contains all the important calculations necessary to produce the API a
 # Importing packages
 import pandas as pd
 from wattsquad.ml_logic.models import predict_rnn_solar
-from wattsquad.ml_logic.outputs import prediction_accuracy
 from wattsquad.ml_logic.models import predict_rnn_consumption
-from wattsquad.ml_logic.models import XGBRegressor_solar
-
-import preproc
-
 
 def load_entire_data():
     train_data = pd.read_csv("raw_data/train.csv")

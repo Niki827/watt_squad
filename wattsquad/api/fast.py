@@ -16,7 +16,6 @@ from wattsquad.ml_logic.battery_logic import selling_electricity
 
 class DataFrameRequest(BaseModel):
     data: list[dict]
-# from wattsquad import preproc
 
 app = FastAPI()
 # data = pd.read_csv("raw_data/train.csv")
@@ -65,7 +64,7 @@ def battery_product(battery_capacity, electricity_price_share):
 
     battery_tuple = selling_electricity(int(battery_capacity), float(electricity_price_share))
 
-    
+
     return {"message": f"Costs saved for {battery_capacity} battery_capacity and {electricity_price_share} electricity price share",
             "df": battery_tuple[0].to_dict(orient='records'),
             "electricity_sold_kwH":   battery_tuple[1],
