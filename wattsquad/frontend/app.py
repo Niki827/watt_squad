@@ -1,15 +1,12 @@
 import streamlit as st
 import requests
 import pandas as pd
-
-#### em's code:
-
-import streamlit as st
 import folium
 from streamlit_folium import st_folium
 import matplotlib.dates as mdates
-import pandas as pd
 import matplotlib.pyplot as plt
+from io import StringIO
+import plotly.express as px
 
 
 # """
@@ -21,23 +18,57 @@ latitude = 63.418204
 longitude = 10.118774
 
 # Create a folium map centered around Langorgen
-m = folium.Map(location=[latitude, longitude], zoom_start=5)
+m = folium.Map(location=[latitude, longitude], zoom_start=4)
 
 # Add a marker for Langorgen
 folium.Marker([latitude, longitude], popup="Our microgrid!").add_to(m)
 
 # Display the map in Streamlit
 st.title("Welcome to Langørgen!")
-st.text("Welcome to Langørgen, Norway. Since the beginning of 2020, our small community (of three houses and one farm) has been using a newly installed microgrid to produce renewable energy.")
+st.image("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARIAAAC4CAMAAAAYGZMtAAAAllBMVEXuLS8hL2P////zLjCcHh8PIVsYKWGqqq5fYnP+7+r7083vNiztEhYWIVYiK1br6+vJycv+7OTycGXuJCjtCBCnp6cWH0EdI0FmExSnm5aEhIWfSUKcGBr/8++tra1vcHKlioebCg0NFTgVGzibm5ruGwvuLyWcIhw+P0tVWGslL2ApMl8JFTyOjpP83dfsAADxZlsdHzcBQ3VkAAACTElEQVR4nO3b107DMABGYbeEUfZoSgcEWsre7/9yICQoykklItsSiPNdW/nVc1nLYVhEm47KT9V4NmhyMV8cmZzET2Y0DMVKtH6v+2V/p9Nkd29x5PAofjKj4j1JiNU/aJkkejEjk4BJwCRgEjAJmARMAiYBk4BJwCRgEjAJmARMAiYBk4BJwCRgEjAJmARMAiYBk4BJwCRgEjAJmARMAiYBk4BJwCRgEjAJmARMAiYBk4BJwCRgEjAJmARMAiYBk4BJwCRgEjAJmARMAiYBk4BJwCRgEjAJmARMAiYBk8B7kuutaJctk1zFT2Z0HUanvWjdVkkSDGZ0OgplN6kfJPnlSpPUmQRMAiYBk4BJwCRgEihDlfaDfz9JFW42krq9a0xyn3Ylp5swW0ursUink3glo1kYLPkN/9bAJHUmAZOAScAkYBIwCZgETAImAZOAScAkYBIwCZgETAImAZPAIDysJrXs7+i0Kzk9hLP1pB6XXFrM085kdObVVl3lBWidd8JgEjAJmARMAiYBk4BJoAznm/G+ffAHSZ4SLGZ0Hqbb0Z7bPT556cdPZjT1iVKNr7bAJGASMAmYBEwCJgGTgEnAJGASMAmYBEwCJgGTgEnAJGASMAmYBEwCJgGTgEnAJGASMAmYBEwCJgGTgEnAJGASMAmYBEwCJgGTgEnAJGASMAmYBEwCJgGTgEnAJGASMAmYBEwCJgGTgEnAJGASMAmYBEwCJgGTgEngI0m0fq9lkvjJjIowLKJNR+Wnanxx3OR1vjgyOYmfzGj4BmpfD7IHYkXJAAAAAElFTkSuQmCC", width=75)
+st.divider()
+st.write("""
+         Hei! We live in **Langørgen, Norway**.
+
+         Since the beginning of 2020, our small community of three houses :house_buildings: and one farm :farmer: has been using a newly installed microgrid to produce renewable energy.
+
+
+
+         """)
+st.divider()
+st.subheader("A microgrid?")
+
+st.write("""
+         A microgrid is a small energy system with a local source of supply that is able to function independently of the centralized electricty grid. :battery:
+
+         Our microgrid is comprised of **three solar panels** :sun_with_face: and a **wind turbine**. :wind_blowing_face:
+
+        Take a look!
+         """)
+
 st_folium(m, width=700, height=500)
 
+st.image("https://www.remote-euproject.eu/remote18/rem18-cont/uploads/2021/11/rye-byneset-750x350.jpg")
+
+
+
+st.write("""
+        Over the past year of using the microgrid, we've collected data on our **energy consumption** and our **renewable energy production**.
+
+        Take a look below to see what happened in the last year!
+
+         """)
+
+st.divider()
 
 # """
 # SHOWING THE 2020 CONSUMPTION AND PRODUCTION DATA IN A GRAPH
 # """
 
-st.title("Exploring 2020")
 
+st.image("https://cdn-icons-png.flaticon.com/512/3967/3967606.png", width=100)
+
+st.subheader("Our energy consumption and production in 2020")
 
 import streamlit as st
 import pandas as pd
@@ -81,10 +112,12 @@ monthly_data_2020['month_year'] = monthly_data_2020['month_year'].dt.to_timestam
 monthly_data_2020['month_year_str'] = monthly_data_2020['month_year'].dt.strftime('%B %Y')
 
 
-
-if st.button("Check our energy consumption in 2020"):
+st.write("""
+         Click the button below to explore our **energy consumption compared to our production** through our sustainable microgrid in the last year.  :bar_chart:
+         """)
+if st.button("Check energy statistics for 2020"):
     # Streamlit UI
-    st.subheader('Energy Consumption and Production')
+    # st.subheader('Energy Consumption and Production')
 
     # Create a figure and axis object
     fig, ax = plt.subplots(figsize=(14, 6))
@@ -112,8 +145,8 @@ if st.button("Check our energy consumption in 2020"):
     # Display the plot in Streamlit
     st.pyplot(fig)
 
-    st.text("Our wind turbine and three solar panels have been working hard!")
-
+    st.write("Our wind turbine and three solar panels have been working hard! :muscle:")
+st.divider()
 
 # """
 # ALLOWING THE USER TO PICK A DATE AND SEE PRODUCTION AND CONSUMPTION
@@ -150,6 +183,17 @@ train_data_2020 = train_data[train_data['timestamp'].dt.year == 2020]
 start_date_2020 = pd.to_datetime('2020-01-01')
 end_date_2020 = pd.to_datetime('2020-12-31')
 
+st.write("""
+
+
+         """)
+
+# st.subheader("Interested in the details?")
+st.write("""
+         You can even pick a **specific date** below to see the energy consumption and production for those 24 hours. :clock2:
+
+         """)
+
 # Date input for selecting the day (only dates within 2020)
 selected_date = st.date_input(
     "Select a date",
@@ -161,7 +205,7 @@ selected_date = st.date_input(
 # selected_date = st.date_input("Select a date", min_value=train_data['timestamp'].min().date(), max_value=train_data['timestamp'].max().date(), value=None)
 
 if selected_date:
-    if st.button("See my energy stats for this day!"):
+    if st.button("Check energy statistics for this day!"):
         # Filter data for the selected date (for the 24 hours of the day)
         start_of_day = pd.to_datetime(selected_date)
         end_of_day = start_of_day + pd.Timedelta(days=1)
@@ -174,8 +218,8 @@ if selected_date:
         daily_production = filtered_data['actual_production'].sum()
 
         # Display the results
-        st.write(f"Total Energy Consumption: {round(daily_consumption, 2)} kWh")
-        st.write(f"Total Energy Production: {round(daily_production, 2)} kWh")
+        st.write(f"**Total Energy Consumption:** {round(daily_consumption, 2)} kWh")
+        st.write(f"**Total Energy Production:** {round(daily_production, 2)} kWh")
 
         # Plot the hourly data for the selected day
         fig, ax = plt.subplots(figsize=(14, 6))
@@ -217,35 +261,68 @@ if selected_date:
 else:
     st.write("Select a date to see your energy data.")
 
+st.divider()
 
+st.subheader("Our battery usage")
+st.write("""
+        Oh, we nearly forgot to mention! In addition to our solar panels and wind turbine, our microgrid includes our very own **battery**. :battery:
+
+        Click below to see how our battery has performed in the last year.
+
+        INPUT BATTERY DESCRIPTIVES
+         """)
 
 # """
 # "2021 - PREDICTIONS FOR THE NEXT 24H ETC"
 # """
+st.divider()
 
-st.title("What's next?")
-st.text("Our resolutions for 2021 are to optimise our energy consumption and become even more sustainable.")
-st.text("The question is: how?")
+st.title("Well, what's next?")
 
-st.title("Battery stuff")
+st.write("""
+        Our resolutions for 2021 are to **optimise our energy consumption** and become even more sustainable.
 
+
+
+        How can we make this happen?
+
+        Well, we've learned some lessons from 2020:
+
+        """)
+
+st.markdown("- As you can see from our battery usage, in summer, the battery is often charged to 100\%. Any excess energy we product through our microgrid while our battery is full goes to waste.")
+st.markdown("- Meanwhile, in winter our battery charge frequently sits at 0%, meaning we need to purchase energy from the centralized grid if the weather doesn't play along.")
+
+st.write("""
+        What can we do about it?
+
+        We've thought of two solutions:
+
+        """)
+
+st.markdown("- **We consume energy when we produce it.** If we time our energy consumption with our production via the microgrid... ")
+
+
+
+st.divider()
 
 # """
 # cost savings model
 # """
 
+# st.title("Optimising sustainability for 2021")
 
-import streamlit as st
-import requests
-import pandas as pd
-import matplotlib.pyplot as plt
-from io import StringIO
+st.subheader("Shifting our consumption throughout the day")
 
-# Streamlit app
-# st.title("Flexibility Degree Cost Savings")
-st.title("Optimising sustainability for 2021")
+st.write("""
+         We've realised that if we can shift our consumption throughout the day to match when we have the highest energy production through our microgrid, we can minimize the amount of enery we need to purchase from the centralized grid and save money.
 
+        :money_mouth_face:
 
+        Thanks to all the data we collected in 2020, we can accurately predict our energy consumption and our energy production (based on the weather forecast!) for the next 24 hours.
+
+         Let's try it. How much of your consumption can you shift around today?
+         """)
 # Slider for flexibility degree
 flexibility_degree = st.slider(
     "Select Flexibility Degree (%)",
@@ -255,7 +332,10 @@ flexibility_degree = st.slider(
 )
 
 # Button to fetch and display the graph
-if st.button("Get Cost Savings and Display Graph"):
+if st.button("Get cost savings and show optimum energy usage"):
+    #st.status("label", *, expanded=False, state="running") ####
+
+
     # Call the API
     try:
         response = requests.get(
@@ -312,69 +392,56 @@ if st.button("Get Cost Savings and Display Graph"):
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
+st.image("https://www.shutterstock.com/image-photo/day-night-time-change-concept-600nw-2326233419.jpg", width=500)
 
-# flexibility = st.number_input("How flexible can you be with your energy usage today?", value=0)
-
-
-# if st.button("Predict Your Cost Savings"):
-
-#     url = 'http://localhost:8000/predict'
-#     # url_prod = 'https://watt-squad-mvp-image-1071061957527.europe-west1.run.app'
-
-#     params = {
-#         "flexibility": flexibility
-#         }
-
-#     # response = requests.get(url, params=params)
-#     response = requests.get(f'http://127.0.0.1:8000/predict?flexibility_degree={flexibility}')
-
-
-#     cost_pred = response.json()
-#     cost = cost_pred["df"]
-
-#     df = pd.DataFrame(cost)
-
-#     st.write(df.head())
-#     # Set the index (optional, for better display)
-#     df.set_index('timestamp', inplace=True)
-#     x = df['timestamp']
-
-    # cost_wos = cost["Total Cost Without Shifting"]
-    # cost_ws = cost['Total Cost With Shifting']
-    # cost_s = cost['Cost Savings']
-    # #'Total Cost With Shifting': 7402.1394766528065, 'Cost Savings': 1218.2230921669852}
-
-
-    # # cost = fare_pred["fare"]
-
-    # # st.write(f"Your predicted cost savings are NOK{round(fare, 2)}")
-
-    # st.write(f"Total Cost Without Shifting: {cost_wos}")
-    # st.write(f"Total Cost With Shifting: {cost_ws}")
-    # st.write(f"Cost Savings: {cost_s}")
-
-    # 'Total Cost Without Shifting'
-
+st.divider()
 
 # """
 # using Niki's EU rnn model
 # """
 
-import streamlit as st
-import requests
-import pandas as pd
-import plotly.express as px
-
 # Title and description
-st.title("Solar PV production across the globe")
-st.write("Enter the latitude and longitude to get the forecasted PV production in this location over a year.")
+st.title("Solar PV production across the globe :earth_africa:")
+st.write("Enter any city to get the forecasted PV production in this location over a typical year. :sunny:")
+
+city_name = st.text_input("Enter a city to see the predicted PV production in that location.")
+
+api_key = "bc31ed29030a92462069b2bd82a34d5d"
+
+def fetch_lat_lon(city_name, api_key=api_key):
+    BASE_URI = 'https://api.openweathermap.org/geo/1.0/direct'  # for lat and lon
+    params = {
+        "q": city_name,
+        "limit": 1,
+        "appid": api_key
+    }
+    response = requests.get(BASE_URI, params=params)
+
+    # Check for successful response
+    if response.status_code == 200:
+        result = response.json()
+        if result:
+            return result[0]  # return the first result (lat, lon)
+        else:
+            st.error("No results found for this city.")
+            return None
+    else:
+        st.error(f"Error fetching data: {response.status_code}")
+        return None
+
+if city_name:  # Check if city_name is not empty
+    location = fetch_lat_lon(city_name.capitalize(), api_key=api_key)
+
+    if location:  # Proceed only if location data is found
+        lat = location['lat']
+        lon = location['lon']
 
 # Input fields for latitude and longitude
-lat = st.number_input("Latitude", value=0.0, format="%.6f")
-lon = st.number_input("Longitude", value=0.0, format="%.6f")
+# lat = st.number_input("Latitude", value=0.0, format="%.6f")
+# lon = st.number_input("Longitude", value=0.0, format="%.6f")
 
 # Button to trigger the API call
-if st.button("Get Forecast"):
+if st.button("Get annual forecast"):
     try:
         # Make API call to the local endpoint
         api_url = "http://127.0.0.1:8000/eu_predict"  # Replace with the actual API URL if different
@@ -405,3 +472,18 @@ if st.button("Get Forecast"):
             st.error(f"API Error: {response.status_code}")
     except Exception as e:
         st.error(f"An error occurred: {e}")
+
+
+## TRYING SIDEBAR STUFF
+
+# add_selectbox = st.sidebar.selectbox(
+#     "How would you like to be contacted?",
+#     ("Email", "Home phone", "Mobile phone")
+# )
+
+# # Using "with" notation
+# with st.sidebar:
+#     add_radio = st.radio(
+#         "Choose a shipping method",
+#         ("Standard (5-15 days)", "Express (2-5 days)")
+#     )
