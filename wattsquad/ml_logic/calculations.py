@@ -3,8 +3,12 @@ This file contains all the important calculations necessary to produce the API a
 '''
 # Importing packages
 import pandas as pd
-from wattsquad.ml_logic import models
-from wattsquad.ml_logic import preproc
+from wattsquad.ml_logic.models import predict_rnn_solar
+from wattsquad.ml_logic.outputs import prediction_accuracy
+from wattsquad.ml_logic.models import predict_rnn_consumption
+from wattsquad.ml_logic.models import XGBRegressor_solar
+
+import preproc
 
 
 def load_entire_data():
@@ -27,7 +31,7 @@ def load_entire_data():
     # Dropping irrelevant columns
     data = data[['timestamp', 'actual_consumption', 'actual_production', 'electricity_price']]
 
-    data = pd.read_csv("raw_data/train.csv")
+    return data
 
 def load_training_data():
     data = pd.read_csv("raw_data/train.csv")
@@ -70,36 +74,25 @@ def load_data():
     data['actual_production'] = data['pv_production'] + data['wind_production']
 
     # Dropping irrelevant columns
-    data = data[['timestamp', 'actual_consumption', 'actual_production', 'electricity_price']]
-
-
-    # merging the predictions on the timestamp
-    # solar_predictions_df = models.XGBRegressor_solar()
-    # data = data.merge(solar_predictions_df, on='timestamp')
+    data = data[['timestamp', 'actual_consumption', 'actual_production', 'electricity_price', 'wind_production']]
 
 
     # the code below uses actual values for consumption and wind_production as placeholders until corresponding forecasts are ready
 
     # receive data from model (dataframe with 24 values for consumption)
-    forecasted_solar_prod = models.predict_rnn_solar()
-    forecasted_consumption = models.predict_rnn_consumption()
+    forecasted_solar_prod = predict_rnn_solar()
+    forecasted_wind_prod = data['wind_production']
+    forecasted_consumption = predict_rnn_consumption()
 
 
     # merge with main dataframe
     data['forecasted_solar_prod'] = forecasted_solar_prod
+    data['forecasted_wind_prod'] = forecasted_wind_prod
     data['forecasted_consumption'] = forecasted_consumption
-
-
-
-    # placeholder_data = pd.read_csv('raw_data/test.csv')
-    # placeholder_data.rename(columns={'time': 'timestamp'}, inplace=True)
-    # placeholder_data = placeholder_data[['timestamp', 'wind_production', 'consumption']]
-    # placeholder_data.rename(columns={'consumption': 'forecasted_consumption'}, inplace=True)
-    # merging with the data df
-    #data = data.merge(placeholder_data, on='timestamp')
+    data = data.drop(columns = 'wind_production')
 
     # creating forecasted_production column
-    data['forecasted_production'] = data['wind_production'] + data['pv_forecast']
+    data['forecasted_production'] = data['forecasted_wind_prod'] + data['forecasted_solar_prod']
     data = data[['timestamp', 'actual_consumption', 'forecasted_consumption', 'actual_production', 'forecasted_production', 'electricity_price']]
 
     return data
@@ -467,5 +460,94 @@ def pred_battery_percentage(capacity=500, initial_battery_percentage=0):
     return data
 
 
-my_battery = actual_battery_percentage()
-print(my_battery[['battery_percentage', 'electricity_bought_kwH', 'electricity_bought_NOK']].describe())
+#my_battery = actual_battery_percentage()
+#print(my_battery[['battery_percentage', 'electricity_bought_kwH', 'electricity_bought_NOK']].describe())
+
+
+
+
+def cost_saving(flexibility_degree):
+    # 1. Load data
+    data = load_data()
+
+    # 2. Scale the predicted data to actual data
+    consumption_scale_factor = data['actual_consumption'].sum() / data['forecasted_consumption'].sum()
+    production_scale_factor = data['actual_production'].sum() / data['forecasted_production'].sum()
+    data['adjusted_forecasted_consumption'] = data['forecasted_consumption'] * consumption_scale_factor
+    data['adjusted_forecasted_production'] = data['forecasted_production'] * production_scale_factor
+
+    # 3. Calculate excess based on scaled forecasts
+    data['forecasted_excess'] = data['adjusted_forecasted_production'] - data['adjusted_forecasted_consumption']
+
+    # 4. Initialize shifted consumption and calculate the initial excess after adjustment
+    data['shifted_consumption'] = data['adjusted_forecasted_consumption'].copy()
+    data['excess_after_shift'] = data['forecasted_production'] - data['shifted_consumption']
+
+    # 5. Sort hours by forecasted excess
+    deficit_hours = data.sort_values('forecasted_excess')
+    excess_hours = data.sort_values('forecasted_excess', ascending=False)
+
+    # 6. Shift consumption based on flexibility degree
+    for i in range(len(deficit_hours)):
+        #choose negative excess
+        if deficit_hours['forecasted_excess'].iloc[i] < 0:
+            #choose what to be shifted (if deficit is smaller than what you are willing to shift, you can shift all - Great!)
+            needed_shift = min(
+                -deficit_hours['forecasted_excess'].iloc[i],
+                flexibility_degree * deficit_hours['adjusted_forecasted_consumption'].iloc[i]
+            )
+            for j in range(len(excess_hours)):
+                # Retrieve the initial available shift
+                available_shift = excess_hours['forecasted_excess'].iloc[j]
+
+                if available_shift > 0:
+                    # Determine the shift amount (whichever is smaller: needed_shift or available_shift)
+                    #Again: if needed shift is smaller than the available shift anyway, shift all - Great!
+                    shift_amount = min(needed_shift, available_shift)
+                    print(shift_amount)
+                    print(needed_shift)
+                    print(available_shift)
+                    print ('------')
+
+                    # Adjust the shifted consumption in data DataFrame
+                    data.loc[deficit_hours.index[i], 'shifted_consumption'] -= shift_amount
+                    data.loc[excess_hours.index[j], 'shifted_consumption'] += shift_amount
+
+                    # Update the needed shift and available shift
+                    needed_shift -= shift_amount
+                    excess_hours.at[excess_hours.index[j], 'forecasted_excess'] -= shift_amount
+
+                    # If no more shift is needed, break out of the loop
+                    if needed_shift <= 0:
+                        break
+
+    # 7. Update the excess after the shift
+    data['excess_after_shift'] = data['adjusted_forecasted_production'] - data['shifted_consumption']
+
+    # 8. What are the cost differences before and after shifting
+    data['costs_no_shift'] = ((data['adjusted_forecasted_consumption'] - data['adjusted_forecasted_production']).clip(lower=0)
+                              * data['electricity_price'])
+    data['costs_with_shift'] = ((data['shifted_consumption'] - data['adjusted_forecasted_production']).clip(lower=0)
+                                * data['electricity_price'])
+
+    # 9. Apply color codes based on excess
+    def assign_color(excess):
+        if excess > 0:
+            return 'green'
+        elif excess == 0:
+            return 'blue'
+        else:
+            return 'red'
+
+    data['color_no_shift'] = data['forecasted_excess'].apply(assign_color)
+    data['color_with_shift'] = data['excess_after_shift'].apply(assign_color)
+
+    data['timestamp'] = pd.to_datetime(data['timestamp'])
+    data = data[['timestamp', 'adjusted_forecasted_consumption', 'adjusted_forecasted_production',
+                 'forecasted_excess', 'shifted_consumption', 'excess_after_shift', 'costs_no_shift',
+                 'costs_with_shift', 'color_no_shift', 'color_with_shift']]
+
+    costs_no_shift = data['costs_no_shift'].sum()
+    costs_with_shift = data['costs_with_shift'].sum()
+
+    return data, costs_no_shift, costs_with_shift
