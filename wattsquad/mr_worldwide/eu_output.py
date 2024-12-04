@@ -92,9 +92,8 @@ def predict_on_website(lat, lon):
     model = load_our_model()
     y_lewagon_pred = predict(lewagon_X_reshaped, model)
     y_lewagon_pred_df = format_predictions(y_lewagon_pred)
-    #sum_y_lewagon_pred = y_lewagon_pred.sum()
-    line_graph = visualize(y_lewagon_pred)
-    return line_graph
+    #line_graph = visualize(y_lewagon_pred)
+    return y_lewagon_pred_df
 
-our_line_graph = predict_on_website(-33.834,  151.209)
-print(our_line_graph)
+our_predictions_df = predict_on_website(-33.834,  151.209)
+print(our_predictions_df)
