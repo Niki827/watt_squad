@@ -96,5 +96,5 @@ def predict_on_website(lat, lon):
     line_graph = visualize(y_lewagon_pred)
     return line_graph
 
-our_line_graph = predict_on_website(59.3327, 18.0656)
+our_line_graph = predict_on_website(33.4489, 70.6693)
 print(our_line_graph)
