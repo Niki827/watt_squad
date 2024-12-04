@@ -31,8 +31,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from pydantic import BaseModel
 from wattsquad.eu_logic.eu_output import predict_on_website
-
-from wattsquad.ml_logic.calculations import cost_savings
+from wattsquad.ml_logic.calculations import cost_saving
 
 
 class DataFrameRequest(BaseModel):
@@ -87,13 +86,15 @@ def root():
 @app.get("/predict")
 def predict(flexibility_degree):
 
-    #my_cost_savings = cost_savings(flexibility_degree=flexibility_degree)
+    my_cost_savings = cost_saving(flexibility_degree=float(flexibility_degree))
+    print(my_cost_savings)
 
-    fake = pd.read_csv('raw_data/API_placeholder_data.csv')
 
+    return {"message": f"Cost Savings for {int(float(flexibility_degree)*100)}% flexibility degree",
+            "df": my_cost_savings[0].to_dict(orient='records'),
+            "costs_no_shift" : my_cost_savings[1],
+            "costs_with_shift" : my_cost_savings[2]}
 
-    return {"message": f"Cost Savings for {flexibility_degree}% flexibility degree",
-            "df": fake.to_dict(orient='records')}
 
 
 @app.get("/eu_predict")

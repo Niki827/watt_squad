@@ -43,3 +43,4 @@ xgboost==1.6.2
 streamlit
 folium
 streamlit_folium
+plotly
