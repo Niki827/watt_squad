@@ -318,105 +318,110 @@ with tabs[2]:
 
             **Here you can see how our battery has performed in the last year.**
             """)
+    st.divider()
+    st.image("raw_data/june.png")
+    # st.divider()
+    st.write(" ")
+    st.image("raw_data/december.png")
 
-    # Define the slider inputs
-    battery_capacity = 500
-    electricity_price_share = 50
+#     # Define the slider inputs
+#     battery_capacity = 500
+#     electricity_price_share = 50
 
-    # Initialize session state variables to store the data and response status
-    if 'response_data' not in st.session_state:
-        st.session_state.response_data = None
-        st.session_state.api_response_status = None
+#     # Initialize session state variables to store the data and response status
+#     if 'response_data' not in st.session_state:
+#         st.session_state.response_data = None
+#         st.session_state.api_response_status = None
 
-# Make request to FastAPI
-    api_url = "https://mvp4-1071061957527.europe-west1.run.app/battery_product"
-    response = requests.get(
-        api_url,
-        params={
-            "battery_capacity": battery_capacity,
-            "electricity_price_share": electricity_price_share / 100,  # Convert percentage to fraction
-        },
-    )
+# # Make request to FastAPI
+#     api_url = "https://mvp4-1071061957527.europe-west1.run.app/battery_product"
+#     response = requests.get(
+#         api_url,
+#         params={
+#             "battery_capacity": battery_capacity,
+#             "electricity_price_share": electricity_price_share / 100,  # Convert percentage to fraction
+#         },
+#     )
 
 
-    # Store the response in session state to prevent it from being fetched again
-    if response.status_code == 200:
-        st.session_state.response_data = response.json()
-        st.session_state.api_response_status = 'success'
-    else:
-        st.session_state.api_response_status = 'error'
-        st.error(f"Error {response.status_code}: {response.text}")
+#     # Store the response in session state to prevent it from being fetched again
+#     if response.status_code == 200:
+#         st.session_state.response_data = response.json()
+#         st.session_state.api_response_status = 'success'
+#     else:
+#         st.session_state.api_response_status = 'error'
+#         st.error(f"Error {response.status_code}: {response.text}")
 
-    # except Exception as e:
-    #     st.session_state.api_response_status = 'error'
-    #     st.error(f"An error occurred: {e}")
+#     # except Exception as e:
+#     #     st.session_state.api_response_status = 'error'
+#     #     st.error(f"An error occurred: {e}")
 
-    # Function to plot with color changes only when battery is 0 or 1 (using points and raw data)
-    def plot_with_color_changes(data, title):
-        plt.figure(figsize=(15, 6))
+#     # Function to plot with color changes only when battery is 0 or 1 (using points and raw data)
+#     def plot_with_color_changes(data, title):
+#         plt.figure(figsize=(15, 6))
 
-        # Plot the raw data (battery_percentage) as a line
-        plt.plot(data.index, data['battery_percentage'], color='#6699CC', linewidth=3)
+#         # Plot the raw data (battery_percentage) as a line
+#         plt.plot(data.index, data['battery_percentage'], color='#6699CC', linewidth=3)
 
-        # Highlight points where battery_percentage is 0 or 1
-        for i in range(1, len(data)):
-            if data['battery_percentage'].iloc[i] == 1:
-                plt.scatter(data.index[i], data['battery_percentage'].iloc[i], color='green', zorder=5, s=10)
-            elif data['battery_percentage'].iloc[i] == 0:
-                plt.scatter(data.index[i], data['battery_percentage'].iloc[i], color='red', zorder=5, s=10)
+#         # Highlight points where battery_percentage is 0 or 1
+#         for i in range(1, len(data)):
+#             if data['battery_percentage'].iloc[i] == 1:
+#                 plt.scatter(data.index[i], data['battery_percentage'].iloc[i], color='green', zorder=5, s=10)
+#             elif data['battery_percentage'].iloc[i] == 0:
+#                 plt.scatter(data.index[i], data['battery_percentage'].iloc[i], color='red', zorder=5, s=10)
 
-        # Draw thick grey horizontal lines at 0 and 1
-        plt.hlines([0, 1], xmin=data.index.min(), xmax=data.index.max(), colors='grey', linestyles='-', linewidth=2)
+#         # Draw thick grey horizontal lines at 0 and 1
+#         plt.hlines([0, 1], xmin=data.index.min(), xmax=data.index.max(), colors='grey', linestyles='-', linewidth=2)
 
-        # Remove the frame around the plot
-        plt.gca().spines['top'].set_visible(False)
-        plt.gca().spines['right'].set_visible(False)
-        plt.gca().spines['left'].set_visible(False)
-        plt.gca().spines['bottom'].set_visible(False)
+#         # Remove the frame around the plot
+#         plt.gca().spines['top'].set_visible(False)
+#         plt.gca().spines['right'].set_visible(False)
+#         plt.gca().spines['left'].set_visible(False)
+#         plt.gca().spines['bottom'].set_visible(False)
 
-        # Adjust y-axis limits to add space above and below
-        plt.ylim(-0.05, 1.05)  # Adds space below 0 and above 1
+#         # Adjust y-axis limits to add space above and below
+#         plt.ylim(-0.05, 1.05)  # Adds space below 0 and above 1
 
-        plt.title(title, fontsize=24)
-        plt.xlabel('Day of Month', fontsize=12)
-        plt.ylabel('Battery Percentage (%)', fontsize=12)
+#         plt.title(title, fontsize=24)
+#         plt.xlabel('Day of Month', fontsize=12)
+#         plt.ylabel('Battery Percentage (%)', fontsize=12)
 
-        # Custom x-ticks (every 5th day)
-        plt.xticks(ticks=[1, 120, 240, 360, 480, 600, 720], labels=[1, 5, 10, 15, 20, 25, 30])
+#         # Custom x-ticks (every 5th day)
+#         plt.xticks(ticks=[1, 120, 240, 360, 480, 600, 720], labels=[1, 5, 10, 15, 20, 25, 30])
 
-        plt.grid(False)  # Disable default gridlines
+#         plt.grid(False)  # Disable default gridlines
 
-        # Display the plot in Streamlit
-        st.pyplot(plt)
+#         # Display the plot in Streamlit
+#         st.pyplot(plt)
 
-    # Check if the response is available and proceed to display the data
-    if st.session_state.response_data is not None and st.session_state.api_response_status == 'success':
-        data = st.session_state.response_data
-        # st.write(f"Costs saved for {battery_capacity}kWh battery capacity and {electricity_price_share}% electricity price share:")
+#     # Check if the response is available and proceed to display the data
+#     if st.session_state.response_data is not None and st.session_state.api_response_status == 'success':
+#         data = st.session_state.response_data
+#         # st.write(f"Costs saved for {battery_capacity}kWh battery capacity and {electricity_price_share}% electricity price share:")
 
-        # Display DataFrames for June and December
-        # st.write("### December Data")
-        df_december = pd.DataFrame(data["df_december"])
+#         # Display DataFrames for June and December
+#         # st.write("### December Data")
+#         df_december = pd.DataFrame(data["df_december"])
 
-        # Check if user clicks on "Check December" to plot the December data
-        # if st.button("Check December 2020"):
-        plot_with_color_changes(df_december, "Battery Performance in December")
+#         # Check if user clicks on "Check December" to plot the December data
+#         # if st.button("Check December 2020"):
+#         plot_with_color_changes(df_december, "Battery Performance in December")
 
-        # st.write("### June Data")
-        df_june = pd.DataFrame(data["df_june"])
+#         # st.write("### June Data")
+#         df_june = pd.DataFrame(data["df_june"])
 
-        # Check if user clicks on "Check June" to plot the June data
-        # if st.button("Check June 2020"):
-        plot_with_color_changes(df_june, "Battery Performance in June")
+#         # Check if user clicks on "Check June" to plot the June data
+#         # if st.button("Check June 2020"):
+#         plot_with_color_changes(df_june, "Battery Performance in June")
 
-        # # Display other details
-        # st.metric("Electricity Sold", f'{round(data["electricity_sold_kwH"], 2)} kWh')
-        # st.metric("Revenue from Electricity Sold", f'NOK {round(data["electricity_sold_NOK"], 2)}')
-        # st.metric("Cost of Electricity Bought", f'NOK {round(data["electricity_bought_NOK"], 2)}')
+#         # # Display other details
+#         # st.metric("Electricity Sold", f'{round(data["electricity_sold_kwH"], 2)} kWh')
+#         # st.metric("Revenue from Electricity Sold", f'NOK {round(data["electricity_sold_NOK"], 2)}')
+#         # st.metric("Cost of Electricity Bought", f'NOK {round(data["electricity_bought_NOK"], 2)}')
 
-    else:
-        if st.session_state.api_response_status == 'error':
-            st.error("Failed to fetch the data. Please try again.")
+#     else:
+#         if st.session_state.api_response_status == 'error':
+#             st.error("Failed to fetch the data. Please try again.")
 
     st.divider()
 
@@ -430,36 +435,64 @@ with tabs[2]:
     # Define the slider inputs
     battery_capacity = st.slider("Battery Capacity (kWh)", min_value=100, max_value=1000, value=500)
     electricity_price_share = st.slider("Electricity Price Share (%)", min_value=0, max_value=100, value=50)
-
     # Initialize session state variables to store the data and response status
-    if 'response_data' not in st.session_state:
-        st.session_state.response_data = None
-        st.session_state.api_response_status = None
+    # if 'response_data' not in st.session_state:
+    #     st.session_state.response_data = None
+    #     st.session_state.api_response_status = None
 
-    # Call FastAPI and display results when the 'Calculate Savings' button is pressed
-    if st.button("Calculate Savings"):
-        try:
-            # Make request to FastAPI
-            api_url = "https://mvp4-1071061957527.europe-west1.run.app/battery_product"
-            response = requests.get(
-                api_url,
-                params={
-                    "battery_capacity": battery_capacity,
-                    "electricity_price_share": electricity_price_share / 100,  # Convert percentage to fraction
-                },
-            )
+    api_url = "https://mvp4-1071061957527.europe-west1.run.app/battery_product"
+    response = requests.get(
+        api_url,
+        params={
+            "battery_capacity": battery_capacity,
+            "electricity_price_share": electricity_price_share / 100,  # Convert percentage to fraction
+        },
+    )
+    data = response.json()
 
-            # Store the response in session state to prevent it from being fetched again
-            if response.status_code == 200:
-                st.session_state.response_data = response.json()
-                st.session_state.api_response_status = 'success'
-            else:
-                st.session_state.api_response_status = 'error'
-                st.error(f"Error {response.status_code}: {response.text}")
+    st.write(f"Costs saved for {battery_capacity}kWh battery capacity and {electricity_price_share}% electricity price share in the last year:")
+    # st.metric("Cost of Electricity Bought", f'NOK {round(data["electricity_bought_NOK"], 2)}', delta=f'EUR {round((data["electricity_bought_NOK"] * 0.086), 2)}', delta_color="inverse")
+    st.metric("Cost of Electricity Bought", f'EUR {round((data["electricity_bought_NOK"] * 0.086), 2)}')
+    st.metric("Electricity Sold", f'{round(data["electricity_sold_kwH"], 2)} kWh')
+    # st.metric("Revenue from Electricity Sold", f'NOK {round(data["electricity_sold_NOK"], 2)}', f'EUR {round((data["electricity_sold_NOK"] * 0.086), 2)}')
+    st.metric("Revenue from Electricity Sold", f'EUR {round((data["electricity_sold_NOK"] * 0.086), 2)}')
+    # # Store the response in session state to prevent it from being fetched again
+    # if response.status_code == 200:
+    #     st.session_state.response_data = response.json()
+    #     st.session_state.api_response_status = 'success'
+    # else:
+    #     st.session_state.api_response_status = 'error'
+    #     st.error(f"Error {response.status_code}: {response.text}")
 
-        except Exception as e:
-            st.session_state.api_response_status = 'error'
-            st.error(f"An error occurred: {e}")
+    # # Initialize session state variables to store the data and response status
+    # if 'response_data' not in st.session_state:
+    #     st.session_state.response_data = None
+    #     st.session_state.api_response_status = None
+
+    # # Call FastAPI and display results when the 'Calculate Savings' button is pressed
+    # if st.button("Calculate Savings"):
+    #     try:
+    #         # Make request to FastAPI
+    #         api_url = "https://mvp4-1071061957527.europe-west1.run.app/battery_product"
+    #         response = requests.get(
+    #             api_url,
+    #             params={
+    #                 "battery_capacity": battery_capacity,
+    #                 "electricity_price_share": electricity_price_share / 100,  # Convert percentage to fraction
+    #             },
+    #         )
+
+    #         # Store the response in session state to prevent it from being fetched again
+    #         if response.status_code == 200:
+    #             st.session_state.response_data = response.json()
+    #             st.session_state.api_response_status = 'success'
+    #         else:
+    #             st.session_state.api_response_status = 'error'
+    #             st.error(f"Error {response.status_code}: {response.text}")
+
+        # except Exception as e:
+        #     st.session_state.api_response_status = 'error'
+        #     st.error(f"An error occurred: {e}")
 
     # # Function to plot with color changes only when battery is 0 or 1 (using points and raw data)
     # def plot_with_color_changes(data, title):
@@ -500,9 +533,9 @@ with tabs[2]:
     #     st.pyplot(plt)
 
     # Check if the response is available and proceed to display the data
-        if st.session_state.response_data is not None and st.session_state.api_response_status == 'success':
-            data = st.session_state.response_data
-            st.write(f"Costs saved for {battery_capacity}kWh battery capacity and {electricity_price_share}% electricity price share:")
+        # if st.session_state.response_data is not None and st.session_state.api_response_status == 'success':
+            # data = st.session_state.response_data
+            # st.write(f"Costs saved for {battery_capacity}kWh battery capacity and {electricity_price_share}% electricity price share:")
 
     #     # Display DataFrames for June and December
     #     st.write("### December Data")
@@ -520,14 +553,16 @@ with tabs[2]:
     #         plot_with_color_changes(df_june, "Battery Performance in June")
 
             # Display other details
-            st.metric("Cost of Electricity Bought", f'NOK {round(data["electricity_bought_NOK"], 2)}', delta=f'EUR {round((data["electricity_bought_NOK"] * 0.086), 2)}', delta_color="inverse")
-            st.metric("Electricity Sold", f'{round(data["electricity_sold_kwH"], 2)} kWh')
-            st.metric("Revenue from Electricity Sold", f'NOK {round(data["electricity_sold_NOK"], 2)}', f'EUR {round((data["electricity_sold_NOK"] * 0.086), 2)}')
+            # # st.metric("Cost of Electricity Bought", f'NOK {round(data["electricity_bought_NOK"], 2)}', delta=f'EUR {round((data["electricity_bought_NOK"] * 0.086), 2)}', delta_color="inverse")
+            # st.metric("Cost of Electricity Bought", f'EUR {round((data["electricity_bought_NOK"] * 0.086), 2)}')
+            # st.metric("Electricity Sold", f'{round(data["electricity_sold_kwH"], 2)} kWh')
+            # # st.metric("Revenue from Electricity Sold", f'NOK {round(data["electricity_sold_NOK"], 2)}', f'EUR {round((data["electricity_sold_NOK"] * 0.086), 2)}')
+            # st.metric("Revenue from Electricity Sold", f'EUR {round((data["electricity_sold_NOK"] * 0.086), 2)}')
 
 
-    else:
-        if st.session_state.api_response_status == 'error':
-            st.error("Failed to fetch the data. Please try again.")
+    # else:
+    #     if st.session_state.api_response_status == 'error':
+    #         st.error("Failed to fetch the data. Please try again.")
 
 
 
@@ -545,11 +580,9 @@ with tabs[2]:
     st.subheader("Shifting our consumption throughout the day")
 
     st.write("""
-            We've realised that if we can **shift our consumption** throughout the day to **match when we have the highest energy production** through our microgrid, we can minimize the amount of enery we need to purchase from the centralized grid and save money.
+            Maybe we can save some costs by shifting our consumption to **balance** our production?
 
             :money_mouth_face:
-
-            Thanks to all the data we collected in 2020, we can accurately **predict** our energy consumption and our energy production (based on the weather forecast!) for the **next 24 hours**.
 
             Let's try it. **How much of your consumption can you shift around today?**
             """)
@@ -561,9 +594,12 @@ with tabs[2]:
         value=0,  # default value
     )
 
+
+
     # Button to fetch and display the graph
     if st.button("Get cost savings and show optimum energy usage"):
         #st.status("label", *, expanded=False, state="running") ####
+
 
 
         # Call the API
@@ -576,11 +612,16 @@ with tabs[2]:
                 result = response.json()
                 st.success(result["message"])
 
-                st.write(f"Costs without shifting consumption: NOK {round(result['costs_no_shift'], 2)}")
-                st.write(f"Costs with shifted consumption: NOK {round(result['costs_with_shift'], 2)}")
+                st.write("""
+                Based on our predictions of what you will produce and consume in the next 24h, your costs will be...
+                """)
+
+
+                st.write(f"... **{round(result['costs_no_shift']* 0.086, 2)}** **EUR** without shifting.")
+                st.write(f"... **{round(result['costs_with_shift']* 0.086, 2)}** **EUR** with shifting.")
 
                 cost_saved = round(result['costs_no_shift'], 2) - round(result['costs_with_shift'], 2)
-                st.write(f"Money saved today: NOK {round(cost_saved, 2)}")
+                st.write(f"Today you can save up to: **EUR {round(cost_saved* 0.086, 2)}**!")
 
                 st.divider()
 
