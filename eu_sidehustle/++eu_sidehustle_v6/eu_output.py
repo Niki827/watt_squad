@@ -42,18 +42,39 @@ def predict(lewagon_X_reshaped, model):
 
 # Visualize the predictions
 def visualize(y_lewagon_pred):
-    # Flatten the predictions to 1D (if necessary)
+    # Flatten the predictions to 1D
     y_lewagon_pred_flat = y_lewagon_pred.flatten()
 
-    # Create an index for the x-axis
-    x = range(len(y_lewagon_pred_flat))
+    # Ensure we have 12 data points (one per month)
+    if len(y_lewagon_pred_flat) != 12:
+        raise ValueError("Expected 12 monthly values for y_lewagon_pred.")
 
-    # Plot the predictions
-    plt.figure(figsize=(10, 5))
-    sns.lineplot(x=x, y=y_lewagon_pred_flat)
-    plt.xlabel("Time (days)")
-    plt.ylabel("Predicted PV Output")
-    plt.title("Predicted Photovoltaic Output Over Time")
+    # Month labels (modify as needed)
+    month_labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+    # Create figure and axis
+    fig, ax = plt.subplots(figsize=(14, 6))
+
+    # Numeric x-axis positions for the months
+    x = range(12)
+
+    # Plot a single set of bars for PV production
+    # Use a green color similar to the 'Production' bars in your provided code
+    ax.bar(x, y_lewagon_pred_flat, color='lightgreen', width=0.4)
+
+    # Set titles and labels
+    ax.set_title('Monthly Predicted PV Output', fontsize=16)
+    ax.set_xlabel('Month', fontsize=14)
+    ax.set_ylabel('Energy (kWh)', fontsize=14)
+
+    # Set the x-ticks and x-labels
+    ax.set_xticks(x)
+    ax.set_xticklabels(month_labels, rotation=45, ha='right', fontsize=10)
+
+    fig.tight_layout()
+
+    # Display the plot
     plt.show()
 
 
