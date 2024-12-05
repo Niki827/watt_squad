@@ -3,6 +3,7 @@ from wattsquad.ml_logic.outputs import prediction_accuracy
 from wattsquad.ml_logic.models import predict_rnn_consumption
 from wattsquad.ml_logic.models import XGBRegressor_solar
 from wattsquad.ml_logic.calculations import cost_saving
+from wattsquad.ml_logic.battery_logic import selling_electricity
 
 
 
@@ -10,37 +11,38 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+data = selling_electricity(500, 0.5)
+print(data)
+# data, costs_no_shift, costs_with_shift = cost_saving(0.5)
 
-data, costs_no_shift, costs_with_shift = cost_saving(0.5)
+# # Convert timestamp to number of hours since the first timestamp
+# data['hour'] = (data['timestamp'] - data['timestamp'].min()).dt.total_seconds() / 3600
 
-# Convert timestamp to number of hours since the first timestamp
-data['hour'] = (data['timestamp'] - data['timestamp'].min()).dt.total_seconds() / 3600
+# # Plotting
+# plt.figure(figsize=(10, 6))
 
-# Plotting
-plt.figure(figsize=(10, 6))
+# # Plotting forecasted consumption and production
+# plt.plot(data['hour'], data['adjusted_forecasted_consumption'], label='Forecasted Consumption', color='red', linestyle='--', marker='o')
+# plt.plot(data['hour'], data['adjusted_forecasted_production'], label='Forecasted Production', color='green', linestyle='-', marker='x')
 
-# Plotting forecasted consumption and production
-plt.plot(data['hour'], data['adjusted_forecasted_consumption'], label='Forecasted Consumption', color='red', linestyle='--', marker='o')
-plt.plot(data['hour'], data['adjusted_forecasted_production'], label='Forecasted Production', color='green', linestyle='-', marker='x')
+# # Plotting shifted consumption
+# plt.plot(data['hour'], data['shifted_consumption'], label='Shifted Consumption', color='blue', linestyle='-', marker='^')
 
-# Plotting shifted consumption
-plt.plot(data['hour'], data['shifted_consumption'], label='Shifted Consumption', color='blue', linestyle='-', marker='^')
+# # Highlight the areas where consumption was shifted (optional)
+# shifted_consumption = data['shifted_consumption'] < data['adjusted_forecasted_consumption']
+# plt.fill_between(data['hour'], data['adjusted_forecasted_consumption'], data['shifted_consumption'], where=shifted_consumption, color='blue', alpha=0.3, label="Shifted Area")
 
-# Highlight the areas where consumption was shifted (optional)
-shifted_consumption = data['shifted_consumption'] < data['adjusted_forecasted_consumption']
-plt.fill_between(data['hour'], data['adjusted_forecasted_consumption'], data['shifted_consumption'], where=shifted_consumption, color='blue', alpha=0.3, label="Shifted Area")
+# # Adding labels and title
+# plt.title("Forecasted Consumption and Production with Consumption Shift")
+# plt.xlabel('Hour')
+# plt.ylabel('Energy (kWh)')
+# plt.legend()
 
-# Adding labels and title
-plt.title("Forecasted Consumption and Production with Consumption Shift")
-plt.xlabel('Hour')
-plt.ylabel('Energy (kWh)')
-plt.legend()
-
-# Display plot
-plt.xticks(rotation=45)
-plt.grid(True)
-plt.tight_layout()
-plt.show()
+# # Display plot
+# plt.xticks(rotation=45)
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
 
 # pred = predict_rnn_solar()
 
