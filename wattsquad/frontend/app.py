@@ -590,7 +590,7 @@ with tabs[2]:
         "Select Flexibility Degree (%)",
         min_value=0,
         max_value=100,
-        value=50,  # default value
+        value=50,  # default value!
     )
 
 
