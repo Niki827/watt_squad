@@ -64,11 +64,18 @@ def battery_product(battery_capacity, electricity_price_share):
 
     battery_tuple = selling_electricity(int(battery_capacity), float(electricity_price_share))
 
-
-    return {"message": f"Costs saved for {battery_capacity} battery_capacity and {electricity_price_share} electricity price share",
+    return {"message": f"Costs saved for {battery_capacity}kWh battery capacity and {electricity_price_share*100}% electricity price share:",
             "df_june": battery_tuple[0].to_dict(orient='records'),
             "df_december": battery_tuple[1].to_dict(orient='records'),
             "electricity_sold_kwH":   battery_tuple[2],
             "electricity_sold_NOK":   battery_tuple[3],
             "electricity_bought_NOK": battery_tuple[4]
             }
+
+# ## OLD:
+#     return {"message": f"Costs saved for {battery_capacity}kWh battery capacity and {electricity_price_share*100}% electricity price share:",
+#             "df": battery_tuple[0].to_dict(orient='records'),
+#             "electricity_sold_kwH":   battery_tuple[1],
+#             "electricity_sold_NOK":   battery_tuple[2],
+#             "electricity_bought_NOK": battery_tuple[3]
+#             }

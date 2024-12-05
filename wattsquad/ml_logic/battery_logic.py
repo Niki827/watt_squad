@@ -87,3 +87,4 @@ def selling_electricity(battery_capacity: 500,
 
 
     return june_data, december_data, electricity_sold_kwH, electricity_sold_NOK, electricity_bought_NOK
+    # return data, electricity_sold_kwH, electricity_sold_NOK, electricity_bought_NOK
