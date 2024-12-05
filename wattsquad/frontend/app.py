@@ -285,6 +285,48 @@ with tabs[1]:
             INPUT BATTERY DESCRIPTIVES
             """)
 
+    # Input fields for user to provide input
+    battery_capacity = st.slider(
+        "Select battery capacity (kWh):",
+        min_value=100,
+        max_value=1000,
+        value=500
+    )
+    electricity_price_share = st.slider(
+        "Enter electricity price share (%):",
+        min_value=0,
+        max_value=100,
+        value=50
+    )
+
+    # Button to trigger API call
+    if st.button("Check battery"):
+        # Making a GET request to the FastAPI endpoint
+        url = "https://mvp3-1071061957527.europe-west1.run.app/battery_product"  # Replace with your actual endpoint URL
+        params = {
+            "battery_capacity": battery_capacity,
+            "electricity_price_share": (electricity_price_share)/100,
+        }
+        response = requests.get(url, params=params)
+
+        # Check the response
+        if response.status_code == 200:
+            data = response.json()
+
+            # Display the message
+            st.success(data["message"])
+
+            # Display the DataFrame
+            df = pd.DataFrame(data["df"])
+            st.dataframe(df)
+
+            # Display other results
+            st.metric("Electricity Sold (kWh)", data["electricity_sold_kwH"])
+            st.metric("Electricity Sold (NOK)", data["electricity_sold_NOK"])
+            st.metric("Electricity Bought (NOK)", data["electricity_bought_NOK"])
+        else:
+            st.error(f"Error: {response.status_code} - {response.text}")
+
 with tabs[2]:
     # """
     # "2021 - PREDICTIONS FOR THE NEXT 24H ETC"
@@ -350,7 +392,7 @@ with tabs[2]:
         # Call the API
         try:
             response = requests.get(
-                "https://mvp2-1071061957527.europe-west1.run.app/predict",  # Replace with your API endpoint
+                "https://mvp3-1071061957527.europe-west1.run.app/predict",  # Replace with your API endpoint
                 params={"flexibility_degree": (flexibility_degree/100)}
             )
             if response.status_code == 200:
@@ -621,7 +663,7 @@ with tabs[3]:
     if st.button("Get annual forecast"):
         try:
             # Make API call to the local endpoint
-            api_url = "https://mvp2-1071061957527.europe-west1.run.app/eu_predict"  # Replace with the actual API URL if different
+            api_url = "https://mvp3-1071061957527.europe-west1.run.app/eu_predict"  # Replace with the actual API URL if different
             params = {"lat": lat, "lon": lon}
             response = requests.get(api_url, params=params)
 
