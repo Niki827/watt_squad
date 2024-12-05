@@ -56,7 +56,7 @@ def eu_predict(lat, lon):
 
     df_eu = predict_on_website(lat=lat, lon=lon)
 
-    return {"message": f"Solar Photovoltaic Production Forecast Savings for {lat} latitude and {lon} longitude",
+    return {"message": f"Solar Photovoltaic Production Forecast for {lat} latitude and {lon} longitude",
             "df": df_eu.to_dict(orient='records')}
 
 @app.get("/battery_product")
