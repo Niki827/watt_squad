@@ -45,8 +45,7 @@ with tabs[0]:
     # Add a marker for Langorgen
     folium.Marker([latitude, longitude], popup="Our microgrid!").add_to(m)
 
-    # Display the map in Streamlit
-
+    # st_folium(m)
 
     st.subheader("A microgrid?")
 
@@ -316,13 +315,13 @@ with tabs[2]:
     st.write("""
             Oh, we nearly forgot to mention! In addition to our solar panels and wind turbine, our microgrid includes our very own **battery**. :battery:
 
-            **Here you can see how our battery has performed in the last year.**
+            **Here you can see how our battery has performed last June and December.**
             """)
     st.divider()
-    st.image("raw_data/june.png")
     # st.divider()
+    st.image("raw_data/december_itsmeee.png")
     st.write(" ")
-    st.image("raw_data/december.png")
+    st.image("raw_data/june.png")
 
 #     # Define the slider inputs
 #     battery_capacity = 500
@@ -425,13 +424,13 @@ with tabs[2]:
 
     st.divider()
 
-    st.subheader("Our battery usage")
+    st.subheader("Selling electricity excess")
     st.write("""
-            Oh, we nearly forgot to mention! In addition to our solar panels and wind turbine, our microgrid includes our very own **battery**. :battery:
-
-            **Click below to see how our battery has performed in the last year.**
+            To finance our high costs in the winter, we can sell electricity. So when our battery is fully charged, we don't have to throw it away!
             """)
-
+    st.write("""
+        Use the sliders to see how much money we could have saved and how much green electricity we could have fed back into the grid.
+        """)
     # Define the slider inputs
     battery_capacity = st.slider("Battery Capacity (kWh)", min_value=100, max_value=1000, value=500)
     electricity_price_share = st.slider("Electricity Price Share (%)", min_value=0, max_value=100, value=50)
@@ -839,9 +838,10 @@ with tabs[3]:
 
     # Title and description
     st.title("Solar PV production across the globe :earth_africa:")
-    st.write("Enter any city to get the forecasted PV production in this location over a typical year. :sunny:")
+    st.write("Well, Langørgen is cool... but what about everywhere else?")
+    st.write("Enter any city to get the **forecasted PV production** in this location over a typical year. :sunny:")
 
-    city_name = st.text_input("Enter a city to see the predicted PV production in that location.")
+    city_name = st.text_input("Enter a city")
 
     api_key = "bc31ed29030a92462069b2bd82a34d5d"
 
