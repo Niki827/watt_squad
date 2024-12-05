@@ -1,4 +1,5 @@
 from wattsquad.ml_logic.calculations import load_training_data
+import pandas as pd
 
 
 def actual_battery_percentage(capacity=500, initial_battery_percentage=0):
@@ -74,6 +75,15 @@ def selling_electricity(battery_capacity: 500,
 
     electricity_bought_NOK = data['electricity_bought_NOK'].sum()
 
+    # Convert 'timestamp' to datetime if not already
+    data['timestamp'] = pd.to_datetime(data['timestamp'])
+
+    # Resample to hourly averages (if needed)
+    hourly_data = data.set_index('timestamp')
+
+    # Use .loc for date slicing
+    june_data = hourly_data.loc['2020-06']
+    december_data = hourly_data.loc['2020-12']
 
 
-    return data, electricity_sold_kwH, electricity_sold_NOK, electricity_bought_NOK
+    return june_data, december_data, electricity_sold_kwH, electricity_sold_NOK, electricity_bought_NOK
