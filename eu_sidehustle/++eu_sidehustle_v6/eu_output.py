@@ -113,9 +113,17 @@ def predict_on_website(lat, lon):
     model = load_our_model()
     y_lewagon_pred = predict(lewagon_X_reshaped, model)
     y_lewagon_pred_df = format_predictions(y_lewagon_pred)
-    #sum_y_lewagon_pred = y_lewagon_pred.sum()
-    line_graph = visualize(y_lewagon_pred)
+
+    # Aggregate daily predictions into monthly totals
+    monthly_preds = (y_lewagon_pred_df
+                     .set_index('date')
+                     .resample('M')['predicted_output']
+                     .sum()
+                     .values)
+
+    # Now monthly_preds has 12 values, one for each month
+    line_graph = visualize(monthly_preds)
     return line_graph
 
-our_line_graph = predict_on_website(-33.929, 18.417)
+our_line_graph = predict_on_website(-33.834, 151.209)
 print(our_line_graph)
