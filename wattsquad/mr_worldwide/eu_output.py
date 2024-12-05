@@ -1,5 +1,5 @@
-import preprocessing_predictions as preprocessing
-import seaborn as sns
+import wattsquad.mr_worldwide.preprocessing_predictions as preprocessing
+#import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
@@ -31,7 +31,7 @@ def preprocessing_data(lat, lon):
 
 # Load the saved RNN model
 def load_our_model():
-    model = load_model('eu_RNN_model')
+    model = load_model('wattsquad/mr_worldwide/eu_RNN_model')
     return model
 
 # Generate predictions for PV production
@@ -40,21 +40,21 @@ def predict(lewagon_X_reshaped, model):
     y_lewagon_pred = model.predict(lewagon_X_reshaped, verbose = 0)
     return y_lewagon_pred
 
-# Visualize the predictions
-def visualize(y_lewagon_pred):
-    # Flatten the predictions to 1D (if necessary)
-    y_lewagon_pred_flat = y_lewagon_pred.flatten()
+# # Visualize the predictions
+# def visualize(y_lewagon_pred):
+#     # Flatten the predictions to 1D (if necessary)
+#     y_lewagon_pred_flat = y_lewagon_pred.flatten()
 
-    # Create an index for the x-axis
-    x = range(len(y_lewagon_pred_flat))
+#     # Create an index for the x-axis
+#     x = range(len(y_lewagon_pred_flat))
 
-    # Plot the predictions
-    plt.figure(figsize=(10, 5))
-    sns.lineplot(x=x, y=y_lewagon_pred_flat)
-    plt.xlabel("Time (days)")
-    plt.ylabel("Predicted PV Output")
-    plt.title("Predicted Photovoltaic Output Over Time")
-    plt.show()
+#     # Plot the predictions
+#     plt.figure(figsize=(10, 5))
+#     sns.lineplot(x=x, y=y_lewagon_pred_flat)
+#     plt.xlabel("Time (days)")
+#     plt.ylabel("Predicted PV Output")
+#     plt.title("Predicted Photovoltaic Output Over Time")
+#     plt.show()
 
 
 def format_predictions(y_lewagon_pred):
@@ -92,9 +92,8 @@ def predict_on_website(lat, lon):
     model = load_our_model()
     y_lewagon_pred = predict(lewagon_X_reshaped, model)
     y_lewagon_pred_df = format_predictions(y_lewagon_pred)
-    #sum_y_lewagon_pred = y_lewagon_pred.sum()
-    line_graph = visualize(y_lewagon_pred)
-    return line_graph
+    #line_graph = visualize(y_lewagon_pred)
+    return y_lewagon_pred_df
 
-our_line_graph = predict_on_website(-33.834,  151.209)
-print(our_line_graph)
+our_predictions_df = predict_on_website(-33.834,  151.209)
+print(our_predictions_df)
