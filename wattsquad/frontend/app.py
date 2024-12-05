@@ -44,7 +44,7 @@ with tabs[0]:
 
     # Add a marker for Langorgen
     folium.Marker([latitude, longitude], popup="Our microgrid!").add_to(m)
-
+    st_folium(m, width=700, height=500)
     # st_folium(m)
 
     st.subheader("A microgrid?")
@@ -57,7 +57,7 @@ with tabs[0]:
 
             """)
 
-    st_folium(m, width=700, height=500)
+    
 
     st.image("https://www.remote-euproject.eu/remote18/rem18-cont/uploads/2021/11/rye-byneset-750x350.jpg")
 
